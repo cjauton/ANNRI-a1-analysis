@@ -1,4 +1,3 @@
-/.DS_Store
 /.ipynb_checkpoints
 /.vscode
 /__pycache__
@@ -9,3 +8,8 @@
 /nndc_127I_ngam.txt
 /nndc_data.txt
 /rawroot
+*.root
+.DS_Store
+*.d
+*.pcm
+*.so
