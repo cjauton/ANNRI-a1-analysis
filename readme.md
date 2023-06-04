@@ -30,7 +30,7 @@ The focus of stage 2 is statistical analysis and the production of the final res
 To run stage 2 analysis, execute the following command:
 
 ```bash
-python stage1_analysis.py
+python stage2_analysis.py
 ```
 
 ## Contributing
