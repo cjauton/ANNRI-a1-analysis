@@ -103,38 +103,6 @@ def get_hist (file_name,hist_name):
     
     return hist
 
-# def get_hEn (file_name):
-#     hEn = []
-#     file = ROOT.TFile(file_name)
-    
-#     for ch in range(numch):
-#         hEn.append(file.Get(f"hEn_gated_FA/hEn_gated_FA_d{ch}"))
-
-#     file.Close()
-    
-#     return hEn
-    
-# def get_hEn_bkg (file_name):
-#     hEn_bkg = []
-#     file = ROOT.TFile(file_name)
-    
-#     for ch in range(len(hEn)):
-#         hEn_bkg.append(file.Get(f"hEn_gated_FA_bkg/hEn_gated_FA_bkg_d{ch}"))
-
-#     file.Close()
-    
-#     return hEn_bkg
-
-# def get_hEgam (file_name):
-    hEgam = []
-    file = ROOT.TFile(file_name)
-    
-    for ch in range(len(hEn)):
-        hEn.append(file.Get(f"hEgam/hEgam_d{ch}"))
-
-    file.Close()
-    
-    return hEgam
 
 det_pos = get_det_map(input_file)
 
@@ -147,36 +115,82 @@ hEn = get_hist(input_file,"hEn_gated_FA")
 hEn_bkg = get_hist(input_file,"hEn_gated_FA_bkg")
 hEgam = get_hist(input_file,"hEgam")
 
+
+def calc_scale(hEgam_bkg):
+    scale = []
+
+    for i in range(numch):
+
+        hEgam[i].GetXaxis().SetRangeUser(6500,7100)
+
+        try:     
+            num = hEgam_bkg[i].Integral(hEgam_bkg[i].GetXaxis().FindBin(hEgam_gate_FA[0]),hEgam_bkg[i].GetXaxis().FindBin(hEgam_gate_FA[1]))
+            dem = hEgam_bkg[i].Integral(hEgam_bkg[i].GetXaxis().FindBin(hEgam_gate_FA_bkg[0]),hEgam_bkg[i].GetXaxis().FindBin(hEgam_gate_FA_bkg[1]))
+            scale.append(num/dem)
+        except ZeroDivisionError:
+            scale.append(0)
+    
+    return scale
+
+def calc_hEn_sub(hEn, hEn_bkg, scale):
+    hEn_bkg_sub = []
+    for i in range(numch):
+        hEn_bkg_sub.append(hEn[i]-hEn_bkg[i]*scale[i])
+        hEn_bkg_sub[i].SetDirectory(0)
+
+    return hEn_bkg_sub
+
+def calc_A_LH_det(hEn_bkg_sub):
+    N_L_det = []
+    N_H_det = []
+    for i in range(numch):
+        N_L_det.append(hEn_bkg_sub[ch].Integral(E_p - G_p, E_p - 1))
+        N_H_det.append(hEn_bkg_sub[ch].Integral(E_p, E_p + G_p))
+    
+        try:     
+            A_LH_det.append((N_L_det[i] - N_H_det[i]) / (N_L_det[i] + N_H_det[i]))
+            dA_LH_det.append(2 * ROOT.TMath.Sqrt((N_L_det[i] * N_L_det[i] * N_H_det[i] + N_L_det[i] * N_H_det[i] * N_H_det[i])) / (
+                N_L_det[i] + N_H_det[i]) / (N_L_det[i] + N_H_det[i]))
+        except ZeroDivisionError:
+            A_LH_det.append(0)
+            dA_LH_det.append(0)
+
+    return A_LH_det, dA_LH_det
+
+
+
+
+
 for ch in range(numch):
     
     # hEn.append(file_input.Get(f"hEn_gated_FA/hEn_gated_FA_d{ch}"))
     # hEn_bkg.append(file_input.Get(f"hEn_gated_FA_bkg/hEn_gated_FA_bkg_d{ch}"))
     # hEgam.append(file_input.Get(f"hEgam/hEgam_d{ch}"))
-    hEgam[ch].GetXaxis().SetRangeUser(6500,7100)
+    # hEgam[ch].GetXaxis().SetRangeUser(6500,7100)
     
 
     hEgam_canvas.append(ROOT.TCanvas(f"hEgam_d{ch}", "My Graph", 800, 600))
     hEgam[ch].Draw("E1")
-    hEgam_bkg.append(hEgam[ch].ShowBackground(50,"same"))
+    # hEgam_bkg.append(hEgam[ch].ShowBackground(50,"same"))
     
     hEgam_canvas[ch].Update()
 
-    try:     
-        num = hEgam_bkg[ch].Integral(hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA[0]),hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA[1]))
-        dem = hEgam_bkg[ch].Integral(hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA_bkg[0]),hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA_bkg[1]))
-        scale.append(num/dem)
-    except ZeroDivisionError:
-        scale.append(0)
+    # try:     
+    #     num = hEgam_bkg[ch].Integral(hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA[0]),hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA[1]))
+    #     dem = hEgam_bkg[ch].Integral(hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA_bkg[0]),hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA_bkg[1]))
+    #     scale.append(num/dem)
+    # except ZeroDivisionError:
+    #     scale.append(0)
 
     # print(f"det{det[i]} scale = {scale[i]}")
 
-    hEn_bkg_sub.append(hEn[ch]-hEn_bkg[ch]*scale[ch])
+    # hEn_bkg_sub.append(hEn[ch]-hEn_bkg[ch]*scale[ch])
     
 
-    hEn[ch].SetDirectory(0)
-    hEgam[ch].SetDirectory(0)
-    hEn_bkg[ch].SetDirectory(0)
-    hEgam_bkg[ch].SetDirectory(0)
+    # hEn[ch].SetDirectory(0)
+    # hEgam[ch].SetDirectory(0)
+    # hEn_bkg[ch].SetDirectory(0)
+    # hEgam_bkg[ch].SetDirectory(0)
 
     hEn_canvas.append(ROOT.TCanvas(f"hEn_d{ch}", "My Graph", 800, 600))
 
@@ -188,18 +202,18 @@ for ch in range(numch):
     hEn_canvas[ch].Update()
 
 
-    N_L_det.append(hEn_bkg_sub[ch].Integral(E_p - G_p, E_p - 1))
-    N_H_det.append(hEn_bkg_sub[ch].Integral(E_p, E_p + G_p))
+    # N_L_det.append(hEn_bkg_sub[ch].Integral(E_p - G_p, E_p - 1))
+    # N_H_det.append(hEn_bkg_sub[ch].Integral(E_p, E_p + G_p))
     # print(f"det = {det[i]}, N_H_det = {N_H_det[i]}, N_L_det = {N_L_det[i]}")
 
-    try:     
-        A_LH_det.append((N_L_det[ch] - N_H_det[ch]) / (N_L_det[ch] + N_H_det[ch]))
-        dA_LH_det.append(2 * ROOT.TMath.Sqrt((N_L_det[ch] * N_L_det[ch] * N_H_det[ch] + N_L_det[ch] * N_H_det[ch] * N_H_det[ch])) / (
-            N_L_det[ch] + N_H_det[ch]) / (N_L_det[ch] + N_H_det[ch]))
-    except ZeroDivisionError:
-        # continue
-        A_LH_det.append(0)
-        dA_LH_det.append(0)
+    # try:     
+    #     A_LH_det.append((N_L_det[ch] - N_H_det[ch]) / (N_L_det[ch] + N_H_det[ch]))
+    #     dA_LH_det.append(2 * ROOT.TMath.Sqrt((N_L_det[ch] * N_L_det[ch] * N_H_det[ch] + N_L_det[ch] * N_H_det[ch] * N_H_det[ch])) / (
+    #         N_L_det[ch] + N_H_det[ch]) / (N_L_det[ch] + N_H_det[ch]))
+    # except ZeroDivisionError:
+    #     # continue
+    #     A_LH_det.append(0)
+    #     dA_LH_det.append(0)
 
 
     
@@ -270,3 +284,12 @@ c1.Write()
 file_output.Close()
 
 
+if __name__=="__main__":
+
+    input_file = "stage0_root_NaI_1"
+
+    det_pos = get_det_map(input_file)
+
+    hEn = get_hist(input_file,"hEn_gated_FA")
+    hEn_bkg = get_hist(input_file,"hEn_gated_FA_bkg")
+    hEgam = get_hist(input_file,"hEgam")

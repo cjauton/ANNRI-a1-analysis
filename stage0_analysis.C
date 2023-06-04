@@ -21,10 +21,10 @@ void stage0_analysis(){
 
    ///////////////////////////////// Apr 23, Ge, NaI, ALL RUNS BELOW ///////////////////////////////////////
 
-   chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_001[4-9]*");
-   chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_002[0-1]*");
-   chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_004[8-9]*");
-   chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_005[0-4]*");
+   // chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_001[4-9]*");
+   // chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_002[0-1]*");
+   // chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_004[8-9]*");
+   // chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_005[0-4]*");
 
    chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_005[7-9]*"); // detector position changes
    chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_006[0-3]*");
@@ -32,8 +32,8 @@ void stage0_analysis(){
    chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_007[0-3]*");
    chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_007[5-8]*");
    
-   chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_007[9-9]*"); // det 11 calibration changes here
-   chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_008[0-9]*");
+   // chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_007[9-9]*"); // det 11 calibration changes here
+   // chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_008[0-9]*");
    
  ///////////////////////////////// Apr 23, Li, NaI, ALL RUNS BELOW ///////////////////////////////////////
 
@@ -126,6 +126,6 @@ void stage0_analysis(){
    // chain->Add("/Volumes/WD_BLACK/2023Feb/rawroot/rawroot_run_0029_000.root");
 
    std::cout << "Done Creating TChain" << std::endl;
-   chain->Process("stage0_process.C");
+   chain->Process("stage0_process.C++");
 
 }
