@@ -1,9 +1,10 @@
 import ROOT
+from typing import Type
 import numpy as np
 # from ROOT import TFile, TH1D 
 
 numch = 32
-input_file = "stage0_output.root"
+# input_file = "stage0_output.root"
 # numdet = 14
 
 # title = "^{111}Cd 4.5 eV p-wave";
@@ -77,7 +78,8 @@ cos_theta_det = [ROOT.TMath.Cos(theta * ROOT.TMath.Pi() / 180) for theta in thet
 theta = [36, 71, 72, 90, 108, 109, 144]
 cos_theta = [0.809017, 0.325568, 0.309017, 0.0, -0.309017, -0.325568, -0.809017]
 
-def get_det_map (file_name):
+def get_det_map (file_name: str) -> list[int]:
+    """Takes a string of a .root file and returns a list containing the detector map"""
     file = ROOT.TFile(file_name)
     det_pos_graph = file.Get("det_pos_graph")
     det = []
@@ -91,7 +93,8 @@ def get_det_map (file_name):
 
 
 
-def get_hist (file_name,hist_name):
+def get_hist (file_name: str, hist_name: str) -> list[Type[ROOT.TH1D]]:
+    """Takes a string of a .root file and a name of a histogram and returns a list of histograms"""
     hist = []
     file = ROOT.TFile(file_name)
     
@@ -104,19 +107,20 @@ def get_hist (file_name,hist_name):
     return hist
 
 
-det_pos = get_det_map(input_file)
+
 
 
 # file_input = ROOT.TFile(file_name)
 
-ROOT.gStyle.SetOptFit(1)
+# ROOT.gStyle.SetOptFit(1)
 
-hEn = get_hist(input_file,"hEn_gated_FA")
-hEn_bkg = get_hist(input_file,"hEn_gated_FA_bkg")
-hEgam = get_hist(input_file,"hEgam")
+# hEn = get_hist(input_file,"hEn_gated_FA")
+# hEn_bkg = get_hist(input_file,"hEn_gated_FA_bkg")
+# hEgam = get_hist(input_file,"hEgam")
 
 
-def calc_scale(hEgam_bkg):
+def calc_scale(hEgam_bkg: list[ROOT.TH1]) -> list[float]:
+    """Takes a list of histograms, calculates the scale and return the scales as a list"""
     scale = []
 
     for i in range(numch):
@@ -132,7 +136,8 @@ def calc_scale(hEgam_bkg):
     
     return scale
 
-def calc_hEn_sub(hEn, hEn_bkg, scale):
+def calc_hEn_sub(hEn: list, hEn_bkg: list, scale: list[float]):
+    """Takes 2 lists of histograms and a list of scales and calculates a new histogram then returns the histograms as a list"""
     hEn_bkg_sub = []
     for i in range(numch):
         hEn_bkg_sub.append(hEn[i]-hEn_bkg[i]*scale[i])
@@ -140,7 +145,8 @@ def calc_hEn_sub(hEn, hEn_bkg, scale):
 
     return hEn_bkg_sub
 
-def calc_A_LH_det(hEn_bkg_sub):
+def calc_A_LH_det(hEn_bkg_sub: list[ROOT.TH1]) -> tuple[list[float], list[float]]:
+    """Takes a list of histograms and returns a list of A_LH_det and its error dA_LH_det"""
     N_L_det = []
     N_H_det = []
     for i in range(numch):
@@ -161,7 +167,7 @@ def calc_A_LH_det(hEn_bkg_sub):
 
 
 
-for ch in range(numch):
+# for ch in range(numch):
     
     # hEn.append(file_input.Get(f"hEn_gated_FA/hEn_gated_FA_d{ch}"))
     # hEn_bkg.append(file_input.Get(f"hEn_gated_FA_bkg/hEn_gated_FA_bkg_d{ch}"))
@@ -169,37 +175,37 @@ for ch in range(numch):
     # hEgam[ch].GetXaxis().SetRangeUser(6500,7100)
     
 
-    hEgam_canvas.append(ROOT.TCanvas(f"hEgam_d{ch}", "My Graph", 800, 600))
-    hEgam[ch].Draw("E1")
-    # hEgam_bkg.append(hEgam[ch].ShowBackground(50,"same"))
+    # hEgam_canvas.append(ROOT.TCanvas(f"hEgam_d{ch}", "My Graph", 800, 600))
+    # hEgam[ch].Draw("E1")
+    # # hEgam_bkg.append(hEgam[ch].ShowBackground(50,"same"))
     
-    hEgam_canvas[ch].Update()
+    # hEgam_canvas[ch].Update()
 
-    # try:     
-    #     num = hEgam_bkg[ch].Integral(hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA[0]),hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA[1]))
-    #     dem = hEgam_bkg[ch].Integral(hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA_bkg[0]),hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA_bkg[1]))
-    #     scale.append(num/dem)
-    # except ZeroDivisionError:
-    #     scale.append(0)
+    # # try:     
+    # #     num = hEgam_bkg[ch].Integral(hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA[0]),hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA[1]))
+    # #     dem = hEgam_bkg[ch].Integral(hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA_bkg[0]),hEgam_bkg[ch].GetXaxis().FindBin(hEgam_gate_FA_bkg[1]))
+    # #     scale.append(num/dem)
+    # # except ZeroDivisionError:
+    # #     scale.append(0)
 
-    # print(f"det{det[i]} scale = {scale[i]}")
+    # # print(f"det{det[i]} scale = {scale[i]}")
 
-    # hEn_bkg_sub.append(hEn[ch]-hEn_bkg[ch]*scale[ch])
+    # # hEn_bkg_sub.append(hEn[ch]-hEn_bkg[ch]*scale[ch])
     
 
-    # hEn[ch].SetDirectory(0)
-    # hEgam[ch].SetDirectory(0)
-    # hEn_bkg[ch].SetDirectory(0)
-    # hEgam_bkg[ch].SetDirectory(0)
+    # # hEn[ch].SetDirectory(0)
+    # # hEgam[ch].SetDirectory(0)
+    # # hEn_bkg[ch].SetDirectory(0)
+    # # hEgam_bkg[ch].SetDirectory(0)
 
-    hEn_canvas.append(ROOT.TCanvas(f"hEn_d{ch}", "My Graph", 800, 600))
+    # hEn_canvas.append(ROOT.TCanvas(f"hEn_d{ch}", "My Graph", 800, 600))
 
-    hEn[ch].GetXaxis().SetRange(E_p - 6 * G_p, E_p + 6 * G_p)
-    hEn[ch].Draw("E1")
-    hEn_bkg_sub[ch].SetLineColor(ROOT.kRed)
-    hEn_bkg_sub[ch].Draw("E1 same")
+    # hEn[ch].GetXaxis().SetRange(E_p - 6 * G_p, E_p + 6 * G_p)
+    # hEn[ch].Draw("E1")
+    # hEn_bkg_sub[ch].SetLineColor(ROOT.kRed)
+    # hEn_bkg_sub[ch].Draw("E1 same")
 
-    hEn_canvas[ch].Update()
+    # hEn_canvas[ch].Update()
 
 
     # N_L_det.append(hEn_bkg_sub[ch].Integral(E_p - G_p, E_p - 1))
@@ -219,30 +225,30 @@ for ch in range(numch):
     
     # print(f"det{det[i]}, angle_det = {theta_det[i]}, A_LH_det = {A_LH_det[i]}, dA_LH_det = {dA_LH_det[i]}")
 
-    for j in range(len(theta)):
-        for k in range(len(det_pos)):
-            if ch == det_pos[k]:
-                if theta_pos[k] == theta[j]:
-                    N_L[j] += N_L_det[ch]
-                    N_H[j] += N_H_det[ch]
+    # for j in range(len(theta)):
+    #     for k in range(len(det_pos)):
+    #         if ch == det_pos[k]:
+    #             if theta_pos[k] == theta[j]:
+    #                 N_L[j] += N_L_det[ch]
+    #                 N_H[j] += N_H_det[ch]
 
-for j in range(len(theta)):
-    try:     
-        A_LH[j] = (N_L[j] - N_H[j]) / (N_L[j] + N_H[j])
-        dA_LH[j] = 2 * ROOT.TMath.Sqrt((N_L[j] * N_L[j] * N_H[j] + N_L[j] * N_H[j] * N_H[j])) / (
-                N_L[j] + N_H[j]) / (N_L[j] + N_H[j])
-        A_LH_x.append(cos_theta[j])
-        A_LH_y.append(A_LH[j])
-        A_LH_y_err.append(dA_LH[j])
+# for j in range(len(theta)):
+#     try:     
+#         A_LH[j] = (N_L[j] - N_H[j]) / (N_L[j] + N_H[j])
+#         dA_LH[j] = 2 * ROOT.TMath.Sqrt((N_L[j] * N_L[j] * N_H[j] + N_L[j] * N_H[j] * N_H[j])) / (
+#                 N_L[j] + N_H[j]) / (N_L[j] + N_H[j])
+#         A_LH_x.append(cos_theta[j])
+#         A_LH_y.append(A_LH[j])
+#         A_LH_y_err.append(dA_LH[j])
         
-    except ZeroDivisionError:
-        continue
+#     except ZeroDivisionError:
+#         continue
     
-graph = ROOT.TGraphErrors(len(A_LH_x),np.array(A_LH_x,dtype=np.double), np.array(A_LH_y,dtype=np.double), np.zeros_like(np.array(A_LH_x,dtype=np.double)), np.array(A_LH_y_err,dtype=np.double))
-graph.SetMarkerStyle(20)
-graph.GetXaxis().SetTitle("cos#theta_{#gamma}")
-graph.GetYaxis().SetTitle("A_{LH}")
-graph.SetTitle(title)
+# graph = ROOT.TGraphErrors(len(A_LH_x),np.array(A_LH_x,dtype=np.double), np.array(A_LH_y,dtype=np.double), np.zeros_like(np.array(A_LH_x,dtype=np.double)), np.array(A_LH_y_err,dtype=np.double))
+# graph.SetMarkerStyle(20)
+# graph.GetXaxis().SetTitle("cos#theta_{#gamma}")
+# graph.GetYaxis().SetTitle("A_{LH}")
+# graph.SetTitle(title)
 
 # graph_det = ROOT.TGraphErrors(numdet, np.array(cos_theta_det), np.array(A_LH_det), 0, np.array(dA_LH_det))
 # graph_det.SetMarkerStyle(20)
@@ -251,42 +257,42 @@ graph.SetTitle(title)
 # graph_det.GetYaxis().SetTitle("A_{LH}")
 # graph_det.SetTitle(title)
 
-c1 = ROOT.TCanvas("c1", "My Graph", 800, 600)
+# c1 = ROOT.TCanvas("c1", "My Graph", 800, 600)
 
 
-fitFunc = ROOT.TF1("fitFunc", "[0]*x + [1]")
-graph.Fit(fitFunc, "Q")
+# fitFunc = ROOT.TF1("fitFunc", "[0]*x + [1]")
+# graph.Fit(fitFunc, "Q")
 
-ROOT.gStyle.SetOptFit(1)
+# ROOT.gStyle.SetOptFit(1)
 
-graph.Draw("AP")
-
-
-# file_input.Close()
-
-c1.Update()
+# graph.Draw("AP")
 
 
-file_output = ROOT.TFile("A_LH.root", "RECREATE")
-file_output.mkdir("hEn_gated_FAFE_bkg_sub/");
-file_output.mkdir("hEgam_canvas/");
+# # file_input.Close()
 
-for i in range(numch):
-        file_output.cd("hEn_gated_FAFE_bkg_sub/")
-        hEn_bkg_sub[i].Write();
+# c1.Update()
 
-        file_output.cd("hEgam_canvas/")
-        hEgam_canvas[i].Write();   
 
-file_output.cd()
-c1.Write()
+# file_output = ROOT.TFile("A_LH.root", "RECREATE")
+# file_output.mkdir("hEn_gated_FAFE_bkg_sub/");
+# file_output.mkdir("hEgam_canvas/");
 
-file_output.Close()
+# for i in range(numch):
+#         file_output.cd("hEn_gated_FAFE_bkg_sub/")
+#         hEn_bkg_sub[i].Write();
+
+#         file_output.cd("hEgam_canvas/")
+#         hEgam_canvas[i].Write();   
+
+# file_output.cd()
+# c1.Write()
+
+# file_output.Close()
 
 
 if __name__=="__main__":
 
-    input_file = "stage0_root_NaI_1"
+    input_file = "stage0_output_NaI_1.root"
 
     det_pos = get_det_map(input_file)
 
