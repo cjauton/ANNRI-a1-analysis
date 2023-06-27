@@ -2,7 +2,6 @@ import ROOT
 # import glob
 
 
-
 chain = ROOT.TChain("rawTree")
 print("Creating TChain")
 
@@ -25,6 +24,5 @@ chain.Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_002[0-1]*")
 # chain.Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_0021_000.root");
 
 
-
 print("Done Creating TCHain")
-chain.Process("stage0_process.C");
+chain.Process("stage0_process.C")
