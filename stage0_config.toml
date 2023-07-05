@@ -6,8 +6,6 @@ stage = "stage0"
 tree_name = "rawTree"
 nuclei = "127I"
 numch = 32
-
-[constants]
 fp_length = 21.5
 
 
@@ -17,8 +15,18 @@ fo_flag = 65536
 
 
 [binning]
+hTOF_mus_down = 0
+hTOF_mus_up = 1000
+hTOF_mus_Nbins =100000
 
+hTOF_ns_down = 0
+hTOF_ns_up = 1000000
+hTOF_ns_Nbins =100000
 
+hPulseHeight_down = 0
+hPulseHeight_up = 1000
+hPulseHeight_Nbins =1000
 
 [cuts]
-
+hEn_cuts_on_hEgam = []
+hEgam_cuts_on_hEn = []

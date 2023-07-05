@@ -200,8 +200,7 @@ def get_det_angle(file_name: str) -> list[int]:
         36,
         -1,
         -1,
-        -1,
-    ]
+        -1,]
     det_angle = []
 
     for i in range(det_pos_graph.GetN()):
@@ -217,7 +216,7 @@ def get_det_angle(file_name: str) -> list[int]:
 
 
 def get_hist(file_name: str, hist_name: str) -> list[ROOT.TH1]:
-    """Takes a string of a root file and a name of a histogram 
+    """Takes a string of a root file and a name of a histogram
     and returns a list of histograms"""
 
     hist = []
@@ -233,7 +232,7 @@ def get_hist(file_name: str, hist_name: str) -> list[ROOT.TH1]:
 
 
 def calc_scale(hEgam_bkg: list[ROOT.TH1]) -> list[float]:
-    """Takes a list of histograms, calculates the scale and 
+    """Takes a list of histograms, calculates the scale and
     return the scales as a list"""
 
     scale = []
@@ -256,7 +255,7 @@ def calc_scale(hEgam_bkg: list[ROOT.TH1]) -> list[float]:
 
 
 def calc_hEn_sub(hist: list, hist_bkg: list, scale: list[float]) -> list[ROOT.TH1]:
-    """Takes 2 lists of histograms and a list of scales and calculates a new 
+    """Takes 2 lists of histograms and a list of scales and calculates a new
     histogram then returns the histograms as a list"""
 
     hist_bkg_sub = []
@@ -270,7 +269,7 @@ def calc_hEn_sub(hist: list, hist_bkg: list, scale: list[float]) -> list[ROOT.TH
 def get_A_LH_det(
     hist: list[ROOT.TH1], energy: float, width: float
 ) -> tuple[list[float], list[float]]:
-    """Takes a list of histograms and returns a list of 
+    """Takes a list of histograms and returns a list of
     A_LH_det and its error dA_LH_det"""
 
     N_L_det = []
@@ -295,7 +294,7 @@ def get_A_LH_det(
 def get_A_LH_angle(
     hist: list[ROOT.TH1], det_angle: list[int], energy: float, width: float
 ) -> tuple[list[float], list[float]]:
-    """Takes a list of histograms and returns a list of A_LH_det 
+    """Takes a list of histograms and returns a list of A_LH_det
     and its error dA_LH_det"""
 
     angle_list = [36, 71, 72, 90, 108, 109, 144]
@@ -431,7 +430,7 @@ for ch in range(numch):
         A_LH_det.append(0)
         dA_LH_det.append(0)
 
-    # print(f"det{det[i]}, angle_det = {theta_det[i]}, 
+    # print(f"det{det[i]}, angle_det = {theta_det[i]},
     # A_LH_det = {A_LH_det[i]}, dA_LH_det = {dA_LH_det[i]}")
 
     for j in range(len(theta)):
