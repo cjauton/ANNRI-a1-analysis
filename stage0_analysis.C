@@ -17,11 +17,11 @@ void stage0_analysis(){
 
    // chain->Add("rawroot_run_0081_000.root");
 
-   // chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_0024_000.root");
+   chain->Add("/Volumes/WD_BLACK/2023Feb/rawroot/rawroot_run_0081_000.root");
 
    ///////////////////////////////// Apr 23, Ge, NaI, ALL RUNS BELOW ///////////////////////////////////////
 
-   chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_0064*");
+   // chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_0064*");
 
    // chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_001[4-9]*");
    // chain->Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_002[0-1]*");

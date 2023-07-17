@@ -65,7 +65,7 @@ double a02,a03;
 
 ///////////////////////// SET BIN SIZE /////////////////////////////////////////////////////////
 
-int binmax_En = 100; // max neutron energy bin
+int binmax_En = 1000; // max neutron energy bin
 double binsize_En = 0.01; // energy bin size in eV
 int binnum_En = static_cast<int>(binmax_En/binsize_En); // number of neutron energy bins
 
@@ -298,37 +298,37 @@ Bool_t stage0_process::Process(Long64_t entry)
    if(*detector<=28){
       
       if((*Flags & bit_foflag)!=bit_foflag){
-         hTOF_pu_all[*detector]->Fill(*tof*10./1000.0);
+         // hTOF_pu_all[*detector]->Fill(*tof*10./1000.0);
       }
 
       if((*Flags & bit_puflag)==bit_puflag){
-         hTOF_pu[*detector]->Fill(*tof*10./1000.0);
+         // hTOF_pu[*detector]->Fill(*tof*10./1000.0);
       }
 
       if((*Flags & bit_puflag)!=bit_puflag){
          hTOF[*detector]->Fill(*tof*10./1000.0);
          hPulseHeight[*detector]->Fill(*PulseHeight);
          hEgam[*detector]->Fill(E_gam);
-         if(E_n>=hEn_gate_pwave[0] && E_n<=hEn_gate_pwave[1]) hEgam_pwave_gated[*detector]->Fill(E_gam);
+         // if(E_n>=hEn_gate_pwave[0] && E_n<=hEn_gate_pwave[1]) hEgam_pwave_gated[*detector]->Fill(E_gam);
          hEn[*detector]->Fill(E_n);
          if((E_gam>=hEgam_gate_FA[0] && E_gam<=hEgam_gate_FA[1])) hEn_gated_FA[*detector]->Fill(E_n);
          if((E_gam>=hEgam_gate_FA_bkg[0] && E_gam<=hEgam_gate_FA_bkg[1])) hEn_gated_FA_bkg[*detector]->Fill(E_n);
          if((E_gam>=hEgam_gate_FA[0] && E_gam<=hEgam_gate_FA[1])||(E_gam>=hEgam_gate_FE[0] && E_gam<=hEgam_gate_FE[1])) hEn_gated_FAFE[*detector]->Fill(E_n);
-         hTOF_hEgam[*detector]->Fill(*tof*10./1000.0,E_gam);
-         hEn_hEgam[*detector]->Fill(E_n,E_gam);
+         // hTOF_hEgam[*detector]->Fill(*tof*10./1000.0,E_gam);
+         // hEn_hEgam[*detector]->Fill(E_n,E_gam);
         
 
          
          // if(option == "all"){
-            hTOF_hEgam_all->Fill(*tof*10./1000.0,E_gam);
-            hEn_hEgam_all->Fill(E_n,E_gam);
-            if((E_gam>=hEgam_gate_FA[0] && E_gam<=hEgam_gate_FA[1])) hEn_pwave_gated_all->Fill(E_n);
+            // hTOF_hEgam_all->Fill(*tof*10./1000.0,E_gam);
+            // hEn_hEgam_all->Fill(E_n,E_gam);
+            // if((E_gam>=hEgam_gate_FA[0] && E_gam<=hEgam_gate_FA[1])) hEn_pwave_gated_all->Fill(E_n);
             // if(gamma_high>=E_gam) hEn_all_high->Fill(E_n);
             if(E_gam>=hEgam_gate_Bo[0] && E_gam<=hEgam_gate_Bo[1]) hEn_all_gate_Bo->Fill(E_n);
-            hEn_all->Fill(E_n);
-            hTOF_all->Fill(*tof*10./1000.0);
-            hEgam_all->Fill(E_gam);
-            if(E_n>=hEn_gate_pwave[0] && E_n<=hEn_gate_pwave[1]) hEgam_pwave_gated_all->Fill(E_gam);
+            // hEn_all->Fill(E_n);
+            // hTOF_all->Fill(*tof*10./1000.0);
+            // hEgam_all->Fill(E_gam);
+            // if(E_n>=hEn_gate_pwave[0] && E_n<=hEn_gate_pwave[1]) hEgam_pwave_gated_all->Fill(E_gam);
          // }
       }
    }  
