@@ -1,32 +1,90 @@
 # stage0_config.toml
 
-# General settings
+# general configuration
 [general]
 stage = "stage0"
 tree_name = "rawTree"
 nuclei = "127I"
 numch = 32
 fp_length = 21.5
-
-
-[flags]
 pu_flag = 32768
 fo_flag = 65536
+
+
+# Histograms
+# Add new table to add more histograms 
+[hist.hTOF_mus]
+name = "hTOF_mus"
+xaxis = "TOF [#mus]"
+yaxis = "counts"
+col = "tof_mus"
+gate = ""
+all = false
+bins.down = 0
+bins.up = 1000
+bins.N = 100000
+bins.var = false
+
+[hist.hTOF_10ns]
+name = "hTOF_10ns"
+xaxis = "TOF [#mus]"
+yaxis = "counts"
+col = "tof"
+gate = ""
+all = false
+bins.down = 0
+bins.up = 100000
+bins.N = 100000
+bins.var = false
+
+[hist.hEn_all_gated_Bo]
+name = "hEn_all_gated_Bo"
+xaxis = "En [eV]"
+yaxis = "counts"
+col = "En"
+gate = "Egam >= 466 && Egam <= 490"
+all = true
+bins.down = 0
+bins.up = 100000
+bins.N = 100000
+bins.var = true
+
 
 
 [binning]
 hTOF_mus_down = 0
 hTOF_mus_up = 1000
-hTOF_mus_Nbins =100000
+hTOF_mus_Nbins = 100000
 
 hTOF_ns_down = 0
 hTOF_ns_up = 1000000
-hTOF_ns_Nbins =100000
+hTOF_ns_Nbins = 100000
+
+hTOF_10ns_down = 0
+hTOF_10ns_up = 100000
+hTOF_10ns_Nbins = 100000
 
 hPulseHeight_down = 0
-hPulseHeight_up = 1000
-hPulseHeight_Nbins =1000
+hPulseHeight_up = 10000
+hPulseHeight_Nbins = 10000
 
 [cuts]
-hEn_cuts_on_hEgam = []
-hEgam_cuts_on_hEn = []
+hEn_cut_on_hEgam = [
+    [
+        "hEn_cut_FA",
+        "Egam >= 6637 && Egam <= 6702",
+    ],
+    [
+        "hEn_cut_SE",
+        "Egam >= 6150 && Egam <= 6194",
+    ],
+    [
+        "hEgam_cut_FA_bkg",
+        "Egam >= 6777 && Egam <= 7044",
+    ],
+    [
+        "hEn_all_gated_Bo",
+        "Egam >= 466 && Egam <= 490",
+    ],
+]
+hEgam_cut_on_hEn = []
