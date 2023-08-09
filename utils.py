@@ -94,4 +94,87 @@ def read_root_to_dict(filename: str) -> dict:
         read_hist(hist_dicts,infile)
 
     return hist_dicts
-        
+
+
+def get_all_keys(root_file: ROOT.TFile) -> list:
+    """Recursively get all keys in a ROOT file, including those in subdirectories."""
+
+    keys = []
+
+    def get_keys(directory, path=""):
+        """Get keys in a directory."""
+        for key in directory.GetListOfKeys():
+            obj = key.ReadObj()
+            if obj.InheritsFrom(ROOT.TDirectory.Class()):
+                get_keys(obj, path + key.GetName() + "/")
+            else:
+                keys.append(path + key.GetName())
+
+    get_keys(root_file)
+
+    return keys
+
+def sort_dict_by_keys(input_dict):
+    if not isinstance(input_dict, dict):
+        return input_dict
+    return {k: sort_dict_by_keys(input_dict[k]) for k in sorted(input_dict)}
+
+def sort_dict_by_type_and_key(input_dict):
+    return {k: input_dict[k] for k in sorted(input_dict, key=lambda x: (str(type(input_dict[x])), x))}
+
+def get_hist(filename, keyword):
+    """Returns the histogram from a file that exactly matches the given keyword."""
+
+    with ROOT.TFile(filename, "READ") as file:
+        keylist = get_all_keys(file)
+        for key in keylist:
+            key_split = key.split('/')
+            if keyword == key_split[-1]:
+                hist = file.Get(key)
+                hist.SetDirectory(0)
+                return hist
+
+    raise KeyError(f"{keyword} not found in {filename}.")
+
+def get_from_dict(root_dict: dict, keyword: str) -> dict:
+    """
+    Takes a dictionary and keyword to match and return
+    """
+    return {key: hist for key, hist in root_dict.items() if keyword in key}
+
+def remove_from_dict(root_dict: dict, keyword: str) -> dict:
+    """
+    Takes a dictionary and keyword to match and remove then return
+    """
+    return {key: hist for key, hist in root_dict.items() if not keyword in key}
+
+def add_to_dict(root_dict: dict, corrected_dict: dict) -> dict:
+    """
+    Updates root_dict with the items from corrected_dict.
+    """
+    root_dict.update(corrected_dict)
+    return root_dict
+
+def rename_keys_in_dict(corrected_dict: dict, correction_name: str) -> dict:
+    def rename_key(key: str) -> str:
+        return key + '_' + correction_name
+    
+    return {
+        rename_key(key): 
+            {rename_key(subkey): subhist for subkey, subhist in hist.items()} 
+            if isinstance(hist, dict) else hist 
+        for key, hist in corrected_dict.items()
+    }
+
+def get_all_objects(root_file):
+    """Recursively get all objects in a ROOT TFile or TDirectory and returns 
+    as a dictionary."""
+    objects = {}
+    for key in root_file.GetListOfKeys():
+        name = key.GetName()
+        obj = key.ReadObj()
+        if obj.IsA().InheritsFrom("TDirectory"):
+            objects[name] = get_all_objects(obj)
+        else:
+            objects[name] = obj
+    return objects
