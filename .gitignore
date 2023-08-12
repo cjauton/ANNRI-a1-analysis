@@ -1,7 +1,7 @@
-/.ipynb_checkpoints
-/.vscode
-/.mypy_cache
-/__pycache__
+.ipynb_checkpoints
+.vscode
+.mypy_cache
+__pycache__
 /archive_code
 /archive_ouput
 /calib
