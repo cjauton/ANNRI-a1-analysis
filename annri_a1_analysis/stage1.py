@@ -74,7 +74,7 @@ def apply_correction(root_dict, correction_func, correction_name, keyword, norm_
 
 def example_correction(histo, correction_name, norm_histo=None):
     corrected_histo = histo.Clone(histo.GetName() + "_" + correction_name)
-    corrected_histo.SetTitle(histo.GetTitle() + " " + correction_name)
+    corrected_histo.SetTitle(histo.GetTitle() + "_" + correction_name)
     # perform the actual correction here, for example:
     if norm_histo is not None:
         corrected_histo.Divide(norm_histo)

@@ -14,6 +14,8 @@ fo_flag = 65536
 # Histograms
 # Add new table to add more histograms 
 
+
+
 [hist.hTOF_mus]
 name = "hTOF_mus"
 xaxis = "TOF [#mus]"
@@ -25,6 +27,7 @@ bins.down = 0
 bins.up = 1000
 bins.N = 100000
 bins.var = false
+pu_rate = true
 
 # [hist.hTOF_ns]
 # name = "hTOF_ns"
@@ -61,6 +64,7 @@ bins.down = 0
 bins.up = 12000
 bins.N = 12000
 bins.var = false
+pu_rate = true
 
 [hist.hEn]
 name = "hEn"
@@ -73,6 +77,33 @@ bins.down = 0
 bins.up = 100000
 bins.N = 100000
 bins.var = true
+pu_rate = true
+
+[hist.hEn_zero]
+name = "hEn_zero"
+xaxis = "En [eV]"
+yaxis = "counts"
+col = "En"
+gate = "PulseHeight == 0"
+all = false
+bins.down = 0
+bins.up = 100000
+bins.N = 100000
+bins.var = true
+pu_rate = true
+
+[hist.hEn_gt_zero]
+name = "hEn_gt_zero"
+xaxis = "En [eV]"
+yaxis = "counts"
+col = "En"
+gate = "PulseHeight > 0"
+all = false
+bins.down = 0
+bins.up = 100000
+bins.N = 100000
+bins.var = true
+pu_rate = true
 
 [hist.hEn_gate_FA]
 name = "hEn_gate_FA"
@@ -85,6 +116,7 @@ bins.down = 0
 bins.up = 100000
 bins.N = 100000
 bins.var = true
+pu_rate = true
 
 [hist.hEn_gate_SE]
 name = "hEn_gate_SE"
@@ -97,6 +129,7 @@ bins.down = 0
 bins.up = 100000
 bins.N = 100000
 bins.var = true
+pu_rate = true
 
 [hist.hEn_gate_FA_bkg]
 name = "hEn_gate_FA_bkg"
@@ -109,6 +142,7 @@ bins.down = 0
 bins.up = 100000
 bins.N = 100000
 bins.var = true
+pu_rate = true
 
 [hist.hEn_all_gate_Bo]
 name = "hEn_all_gate_Bo"
@@ -121,6 +155,7 @@ bins.down = 0
 bins.up = 100000
 bins.N = 100000
 bins.var = true
+pu_rate = true
 
 
 
