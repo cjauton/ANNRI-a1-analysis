@@ -6,8 +6,8 @@ import numpy as np
 from pathlib import Path
 
 MODULE_DIR = Path(__file__).parent
-CONFIG_PATH = MODULE_DIR / '../../configs/stage0_config.toml'
-CALIB_PATH = MODULE_DIR / "../../calib/calib_apr.csv"
+CONFIG_PATH = MODULE_DIR / '../configs/stage0_config.toml'
+CALIB_PATH = MODULE_DIR / "../calib/calib_apr.csv"
 
 
 
