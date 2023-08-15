@@ -1,48 +1,39 @@
-# import ROOT
-# # import glob
-
-
-# chain = ROOT.TChain("rawTree")
-# print("Creating TChain")
-
-# # file_list = (glob.glob("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_001[4-9]*")
-# #              + glob.glob(glob.glob("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_002[0-1]*"))) # Replace 'path/to/files/' with the actual directory path and desired pattern
-
-# # print(file_list)
-
-# chain.Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_001[4-9]*")
-# chain.Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_002[0-1]*")
-
-
-# # chain.Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_0014_000.root");
-# # chain.Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_0015_000.root");
-# # chain.Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_0016_000.root");
-# # chain.Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_0017_000.root");
-# # chain.Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_0018_000.root");
-# # chain.Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_0019_000.root");
-# # chain.Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_0020_000.root");
-# # chain.Add("/Volumes/WD_BLACK/2023Apr/Ge/rawroot/rawroot_run_0021_000.root");
-
-
-# print("Done Creating TCHain")
-# chain.Process("stage0_process.C")
-
-tree_name = "rawTree"
-file_name = "rawroot/rawroot*"
-
-
 import ROOT
+import numba
+import config_loader
+import csv
+import numpy as np
+from pathlib import Path
 
-# enable multi-thread event loop
-ROOT.EnableImplicitMT()
+MODULE_DIR = Path(__file__).parent
+CONFIG_PATH = MODULE_DIR / '../../configs/stage0_config.toml'
+CALIB_PATH = MODULE_DIR / "../../calib/calib_apr.csv"
 
-# read in the TTree
-df = ROOT.RDataFrame(tree_name, file_name)
 
-# add a user defined column and filter
-df = df.Define("En","pow((72.3*21.5/(tof/100.0)),2)").Filter("detector == 1")
 
-# create a histogram and draw
-hist = df.Histo1D(("hEn_d1", "hEn_d1; En [eV]; Counts", 1000, 0, 100),"En")
+config = config_loader.load(CONFIG_PATH)
 
-hist.Draw()
+def extract_calib_from_csv(filename, numch):
+    # Initialize the arrays with default values
+    calib_slope = np.ones(numch)
+    calib_offset = np.zeros(numch)
+
+    with open(filename, 'r') as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip the header
+        
+        for row in reader:
+            index = int(row[0])
+            calib_slope[index] = float(row[1])
+            calib_offset[index] = float(row[2])
+            
+    return calib_slope, calib_offset
+
+filename = MODULE_DIR / "../../calib/calib_apr.csv"
+numch = config['general']['numch']
+calib_slope, calib_offset = extract_calib_from_csv(CALIB_PATH, numch)
+
+
+# @ROOT.Numba.Declare(["int","int"], "double")
+# def calc_Egam(detector,PulseHeight):
+#     return PulseHeight*calib_slope[detector]+calib_offset[detector]

@@ -1,5 +1,5 @@
 import toml
 
-def load_config(path):
+def load(path):
     with open(path, "r") as f:
         return toml.load(f)
