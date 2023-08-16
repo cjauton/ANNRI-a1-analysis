@@ -155,10 +155,26 @@ def add_to_dict(root_dict: dict, corrected_dict: dict) -> dict:
     root_dict.update(corrected_dict)
     return root_dict
 
+# def rename_keys_in_dict(corrected_dict: dict, correction_name: str) -> dict:
+#     def rename_key(key: str) -> str:
+#         return key + '_' + correction_name
+    
+#     return {
+#         rename_key(key): 
+#             {rename_key(subkey): subhist for subkey, subhist in hist.items()} 
+#             if isinstance(hist, dict) else hist 
+#         for key, hist in corrected_dict.items()
+#     }
+    
 def rename_keys_in_dict(corrected_dict: dict, correction_name: str) -> dict:
     def rename_key(key: str) -> str:
-        return key + '_' + correction_name
-    
+        parts = key.split('_')
+        if parts[-1].startswith('d') and parts[-1][1:].isdigit():
+            new_key = "_".join(parts[:-1] + [correction_name, parts[-1]])
+        else:
+            new_key = key + '_' + correction_name
+        return new_key
+
     return {
         rename_key(key): 
             {rename_key(subkey): subhist for subkey, subhist in hist.items()} 

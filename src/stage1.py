@@ -51,7 +51,7 @@ def get_beam_intensity(file_name: str, cross_section: ROOT.TH1D) -> ROOT.TH1D:
 
     return beam_intensity
 
-def apply_correction(root_dict, correction_func, correction_name, keyword, norm_histo=None):
+def apply_correction(root_dict, correction_func, correction_name, keyword, norm_hist=None):
     """
     Applies a correction function to all histograms in the root dict, renames them,
     and stores the result in a new subdirectory with the correction name.
@@ -64,21 +64,14 @@ def apply_correction(root_dict, correction_func, correction_name, keyword, norm_
         if isinstance(hist, dict):
             for subkey, subhist in hist.items():
              
-                corrected_dict[key][subkey] = correction_func(subhist, correction_name, norm_histo)
+                corrected_dict[key][subkey] = correction_func(subhist, correction_name, norm_hist)
         else:
-            corrected_dict[key] = correction_func(hist, correction_name, norm_histo)
+            corrected_dict[key] = correction_func(hist, correction_name, norm_hist)
             
     corrected_dict = rename_keys_in_dict(corrected_dict,correction_name)
     corrected_dict = add_to_dict(corrected_dict,root_dict)
     return corrected_dict
 
-def example_correction(histo, correction_name, norm_histo=None):
-    corrected_histo = histo.Clone(histo.GetName() + "_" + correction_name)
-    corrected_histo.SetTitle(histo.GetTitle() + "_" + correction_name)
-    # perform the actual correction here, for example:
-    if norm_histo is not None:
-        corrected_histo.Divide(norm_histo)
-    return corrected_histo
 
 
 
