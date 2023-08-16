@@ -61,13 +61,12 @@ def apply_correction(root_dict, correction_func, correction_name, keyword, norm_
 
     # Apply the correction function to all histograms, rename them and store the result in a new subdirectory
     for key, hist in corrected_dict.items():
-        if isinstance(hist, dict):
-            for subkey, subhist in hist.items():
-             
-                corrected_dict[key][subkey] = correction_func(subhist, correction_name, norm_hist)
-        else:
+        if not isinstance(hist, dict):
             corrected_dict[key] = correction_func(hist, correction_name, norm_hist)
-            
+            continue
+        
+        for subkey, subhist in hist.items():
+                corrected_dict[key][subkey] = correction_func(subhist, correction_name, norm_hist)   
     corrected_dict = rename_keys_in_dict(corrected_dict,correction_name)
     corrected_dict = add_to_dict(corrected_dict,root_dict)
     return corrected_dict

@@ -166,21 +166,37 @@ def add_to_dict(root_dict: dict, corrected_dict: dict) -> dict:
 #         for key, hist in corrected_dict.items()
 #     }
     
-def rename_keys_in_dict(corrected_dict: dict, correction_name: str) -> dict:
-    def rename_key(key: str) -> str:
-        parts = key.split('_')
-        if parts[-1].startswith('d') and parts[-1][1:].isdigit():
-            new_key = "_".join(parts[:-1] + [correction_name, parts[-1]])
-        else:
-            new_key = key + '_' + correction_name
-        return new_key
+# def rename_keys_in_dict(corrected_dict: dict, correction_name: str) -> dict:
+#     def rename_key(key: str) -> str:
+#         parts = key.split('_')
+#         if parts[-1].startswith('d') and parts[-1][1:].isdigit():
+#             new_key = "_".join(parts[:-1] + [correction_name, parts[-1]])
+#         else:
+#             new_key = key + '_' + correction_name
+#         return new_key
 
+#     return {
+#         rename_key(key): 
+#             {rename_key(subkey): subhist for subkey, subhist in hist.items()} 
+#             if isinstance(hist, dict) else hist 
+#         for key, hist in corrected_dict.items()
+#     }
+
+def rename_string(input_string: str, correction_name: str) -> str:
+    parts = input_string.split('_')
+    if parts[-1].startswith('d') and parts[-1][1:].isdigit():
+        return "_".join(parts[:-1] + [correction_name, parts[-1]])
+    else:
+        return input_string + '_' + correction_name
+
+def rename_keys_in_dict(corrected_dict: dict, correction_name: str) -> dict:
     return {
-        rename_key(key): 
-            {rename_key(subkey): subhist for subkey, subhist in hist.items()} 
+        rename_string(key, correction_name): 
+            {rename_string(subkey, correction_name): subhist for subkey, subhist in hist.items()} 
             if isinstance(hist, dict) else hist 
         for key, hist in corrected_dict.items()
     }
+
 
 def get_all_objects(root_file):
     """Recursively get all objects in a ROOT TFile or TDirectory and returns 
