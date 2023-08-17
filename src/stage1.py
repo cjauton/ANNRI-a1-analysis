@@ -1,5 +1,9 @@
 import ROOT
-from utils import *
+import utils
+import config_loader
+import numpy as np
+
+config = config_loader.load("../configs/stage1_config.toml")
 
 
 def get_cross_section(file_name: str, xbins: list[float]) -> ROOT.TH1D:
@@ -56,8 +60,8 @@ def apply_correction(root_dict, correction_func, correction_name, keyword, norm_
     Applies a correction function to all histograms in the root dict, renames them,
     and stores the result in a new subdirectory with the correction name.
     """
-    corrected_dict = get_from_dict(root_dict,keyword)
-    root_dict = remove_from_dict(root_dict,keyword)
+    corrected_dict = utils.get_from_dict(root_dict,keyword)
+    root_dict = utils.remove_from_dict(root_dict,keyword)
 
     # Apply the correction function to all histograms, rename them and store the result in a new subdirectory
     for key, hist in corrected_dict.items():
@@ -67,8 +71,8 @@ def apply_correction(root_dict, correction_func, correction_name, keyword, norm_
         
         for subkey, subhist in hist.items():
                 corrected_dict[key][subkey] = correction_func(subhist, correction_name, norm_hist)   
-    corrected_dict = rename_keys_in_dict(corrected_dict,correction_name)
-    corrected_dict = add_to_dict(corrected_dict,root_dict)
+    corrected_dict = utils.rename_keys_in_dict(corrected_dict,correction_name)
+    corrected_dict = utils.add_to_dict(corrected_dict,root_dict)
     return corrected_dict
 
 
