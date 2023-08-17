@@ -1,4 +1,4 @@
-# ANNRI a1 Analysis
+# ANNRI Analysis Framework
 
 This Python project aims to perform physics analysis using a multi-stage approach. The analysis API is divided into three stages: `stage0.py`, `stage1.py`, and `stage2.py`. Each stage has a specific purpose and contributes to the final result. There is also a common `utils.py` that holds functions common to all stages.
 
