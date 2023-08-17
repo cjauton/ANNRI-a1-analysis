@@ -1,13 +1,9 @@
-.ipynb_checkpoints
-.vscode
-.mypy_cache
-__pycache__
-/archive_code
-/archive_ouput
-/calib
-/data
-/rawroot
+/.vscode
 /archive
-*.root
-*.DS_Store
 
+__pycache__/
+.ipynb_checkpoints
+
+/data
+/output
+.DS_Store
