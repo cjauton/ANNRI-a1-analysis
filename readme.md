@@ -1,24 +1,77 @@
 # ANNRI a1 Analysis
 
-This Python project aims to perform physics analysis using a multi-stage approach. The analysis is divided into three stages: `stage0_analysis.py`, `stage1_analysis.py`, and `stage2_analysis.py`. Each stage has a specific purpose and contributes to the final result.
+This Python project aims to perform physics analysis using a multi-stage approach. The analysis API is divided into three stages: `stage0.py`, `stage1.py`, and `stage2.py`. Each stage has a specific purpose and contributes to the final result. There is also a common `utils.py` that holds functions common to all stages.
 
 ## Requirements
 
 - Python 3.x
 - ROOT (CERN) library (for handling TTRee and histograms)
+- PyROOT (CERN) library (for bindings between Python and C++)
 
-## Stage 0: Calibration and Cuts (`stage0_analysis.py`)
+## Stage 0: Calibration and Cuts (`stage0.py`)
 
-This stage focuses on calibration and data selection. It processes the ROOT TTRee data, applies calibrations, and performs necessary cuts. The output of this stage is transformed into histograms for further analysis.
+This stage focuses on calibration and data selection. It processes the ROOT TTRee/RNTuple data, applies calibrations, and performs necessary cuts using CERN ROOT's RNDataFrame library. The output of this stage is transformed into histograms for further analysis. Histograms are defined in the `stage0_config.toml` using the following format:
 
-To run stage 0 analysis, execute the following command:
+```toml
+[hist.hEn_zero]
+name = "hEn_zero"
+xaxis = "En [eV]"
+yaxis = "counts"
+col = "En"
+gate = "PulseHeight == 0"
+all = false
+bins.down = 0
+bins.up = 100000
+bins.N = 100000
+bins.var = true
+```
+
+To add another histogram simply create a new sub-table `[hist.your_new_hist]` following the same key value pair shown above. Histograms are filled from the RDataFrame using the column defined by the `col` key. The string must match exactly with a defined column in the dataframe. Cuts are defined in using the `gate` key and value as a C++ expression passed as a string. Since this is a multi-detector analysis you have the option of producing a histogram for each detector or summing the histograms to produce a single histogram. This is controlled by the `all` key. There is also an option for constant width bins or variable width bins. Currently only a 1-to-1 mapping of constant width time-of-flight bins to variable width neutron energy bins is available. Could possibly add logarithmic binning in a later update.
+
+To use stage0 functions create a python script or an IPython Notebook and import the `stage0.py` module. The basic outline for using the stage0 module is to:
+
+1. Read the `rawTree` into an RDataFrame
+2. Read calibration data from `calib.csv`
+3. Define new columns from existing columns and calibration data such as hEn and hEgam
+4. Perform any cuts and filter by detector channel
+5. Create and fill histograms
+6. Load histograms into a dict then write to root file
+
+The writing and loading of root files is handled by the `utils.py` module and is done using dicts. The entirety of the analysis uses dicts as containers to model the layout of the root file directory structure. For example:
+
+```tree
+stage0_output.root
+├── hTOF_mus
+│   ├── hTOF_mus_d0
+│   ├── hTOF_mus_d1
+│   ├── ...
+│   └── hTOF_mus_d31
+├── hEgam
+│   ├── hEgam_d0
+│   ├── hEgam_d1
+│   ├── ...
+│   └── hEgam_d31
+├── hEn
+│   ├── hEn_d0
+│   ├── hEn_d1
+│   ├── ...
+│   └── hEn_d31
+├── hEn_zero
+│   ├── hEn_zero_d0
+│   ├── hEn_zero_d1
+│   ├── ...
+│   └── hEn_zero_d31
+└── hEn_all_gate_Bo
+```
+
+To run stage0 analysis, execute the following command:
 
 ```bash
 python stage0_analysis.py
 python 
 ```
 
-## Stage 1: Physics Analysis (`stage1_analysis.py`)
+## Stage 1: Physics Analysis (`stage1_analysis.py`) (**NEEDS UPDATING!**)
 
 Stage 1 is dedicated to the actual physics analysis. It takes the calibrated and cut histograms from stage 0 and applies specific algorithms and calculations to extract meaningful physics quantities. This stage may involve fitting, modeling, or other techniques to obtain the desired results.
 
@@ -28,7 +81,7 @@ To run stage 1 analysis, execute the following command:
 python stage1_analysis.py
 ```
 
-## Stage 2: Statistical Analysis and Final Result (`stage2_analysis.py`)
+## Stage 2: Statistical Analysis and Final Result (`stage2_analysis.py`) (**NEEDS UPDATING!**)
 
 The focus of stage 2 is statistical analysis and the production of the final result. It takes the outputs from stage 1 and performs statistical tests, error analysis, or any other relevant statistical techniques. The final result of the analysis is produced in this stage.
 
