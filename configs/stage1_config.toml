@@ -9,6 +9,6 @@ numch = 32
 fp_length = 21.5
 pu_flag = 32768
 fo_flag = 65536
-INPUT_PATH = '../data/stage0_output.root'
+INPUT_PATH = '../output/stage0_output.root'
 OUTPUT_PATH = '../output/stage1_output.root'
 
