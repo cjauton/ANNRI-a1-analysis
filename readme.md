@@ -64,12 +64,6 @@ stage0_output.root
 └── hEn_all_gate_Bo
 ```
 
-To run stage0 analysis, execute the following command:
-
-```bash
-python stage0_analysis.py
-python 
-```
 
 ## Stage 1: Physics Analysis (`stage1_analysis.py`) (**NEEDS UPDATING!**)
 
