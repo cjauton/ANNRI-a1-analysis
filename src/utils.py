@@ -1,5 +1,6 @@
 import ROOT
 import numpy as np
+import toml
 
 def tof_1mus_to_En(TOF: any, length: float) -> any:
     """Converts TOF in units of mu s to neutron energy 
@@ -46,6 +47,11 @@ def get_xbins(Nbins: int, down: int, up: int, varbins: bool, fp_length: float) -
     else:
         xbins_tof = np.linspace(down, up, Nbins+1)
         return xbins_tof
+    
+
+def load_config(path):
+    with open(path, "r") as f:
+        return toml.load(f)
 
 
 def write_dict_to_root(hist_dict: dict, filename: str):
