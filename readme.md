@@ -64,7 +64,7 @@ stage0_output.root
 └── hEn_all_gate_Bo
 ```
 
-## Stage 1: Physics Analysis and Corrections (`stage1_analysis.py`)
+## Stage 1: Physics Analysis and Corrections (`stage1.py`)
 
 Stage 1 is dedicated to the actual physics analysis. It takes the calibrated and cut histograms from stage 0 and applies specific algorithms and performs corrections. This stage may involve fitting, modeling, or other techniques to obtain the desired results. This should be done in a user defined correction function that is passed to `apply_corrections()`. Users can define multiple correction, apply these corrections, then write the results to a root file `stage1_output.root` for further analysis. As with stage 0, nested dicts are use as containers for root files.
 
@@ -75,7 +75,7 @@ To use stage 1 functions create a python script or an IPython Notebook and impor
 3. Apply corrections by passing the dict, correction function, and correction histogram to `apply_corrections()`
 4. Write the corrected dict to a root file
 
-## Stage 2: Statistical Analysis and Final Result (`stage2_analysis.py`)
+## Stage 2: Statistical Analysis and Final Result (`stage2.py`)
 
 The focus of stage 2 is statistical analysis and the production of the final result. It takes the outputs from stage 1 and performs statistical tests, error analysis, or any other relevant statistical techniques. The final result of the analysis is produced in this stage. This stage largely depends of the type of analysis required. In my case I calculate the a2 term from the Flambaum Formalism.
 
