@@ -18,8 +18,6 @@ OUTPUT_PATH = "../output/stage0_output.root"
 # Histograms
 # Add new table to add more histograms 
 
-
-
 [hist.hTOF_mus]
 name = "hTOF_mus"
 xaxis = "TOF [#mus]"
@@ -31,7 +29,6 @@ bins.down = 0
 bins.up = 1000
 bins.N = 100000
 bins.var = false
-pu_rate = true
 
 # [hist.hTOF_ns]
 # name = "hTOF_ns"
@@ -68,7 +65,6 @@ bins.down = 0
 bins.up = 12000
 bins.N = 12000
 bins.var = false
-pu_rate = true
 
 [hist.hEn]
 name = "hEn"
@@ -81,7 +77,6 @@ bins.down = 0
 bins.up = 100000
 bins.N = 100000
 bins.var = true
-pu_rate = true
 
 [hist.hEn_zero]
 name = "hEn_zero"
@@ -94,7 +89,6 @@ bins.down = 0
 bins.up = 100000
 bins.N = 100000
 bins.var = true
-pu_rate = true
 
 [hist.hEn_gt_zero]
 name = "hEn_gt_zero"
@@ -107,7 +101,6 @@ bins.down = 0
 bins.up = 100000
 bins.N = 100000
 bins.var = true
-pu_rate = true
 
 [hist.hEn_gate_FA]
 name = "hEn_gate_FA"
@@ -120,7 +113,6 @@ bins.down = 0
 bins.up = 100000
 bins.N = 100000
 bins.var = true
-pu_rate = true
 
 [hist.hEn_gate_SE]
 name = "hEn_gate_SE"
@@ -133,7 +125,6 @@ bins.down = 0
 bins.up = 100000
 bins.N = 100000
 bins.var = true
-pu_rate = true
 
 [hist.hEn_gate_FA_bkg]
 name = "hEn_gate_FA_bkg"
@@ -146,7 +137,6 @@ bins.down = 0
 bins.up = 100000
 bins.N = 100000
 bins.var = true
-pu_rate = true
 
 [hist.hEn_all_gate_Bo]
 name = "hEn_all_gate_Bo"
@@ -159,44 +149,3 @@ bins.down = 0
 bins.up = 100000
 bins.N = 100000
 bins.var = true
-pu_rate = true
-
-
-
-[binning]
-hTOF_mus_down = 0
-hTOF_mus_up = 1000
-hTOF_mus_Nbins = 100000
-
-hTOF_ns_down = 0
-hTOF_ns_up = 1000000
-hTOF_ns_Nbins = 100000
-
-hTOF_10ns_down = 0
-hTOF_10ns_up = 100000
-hTOF_10ns_Nbins = 100000
-
-hPulseHeight_down = 0
-hPulseHeight_up = 10000
-hPulseHeight_Nbins = 10000
-
-[cuts]
-hEn_cut_on_hEgam = [
-    [
-        "hEn_cut_FA",
-        "Egam >= 6637 && Egam <= 6702",
-    ],
-    [
-        "hEn_cut_SE",
-        "Egam >= 6150 && Egam <= 6194",
-    ],
-    [
-        "hEgam_cut_FA_bkg",
-        "Egam >= 6777 && Egam <= 7044",
-    ],
-    [
-        "hEn_all_gated_Bo",
-        "Egam >= 466 && Egam <= 490",
-    ],
-]
-hEgam_cut_on_hEn = []
