@@ -216,3 +216,17 @@ def get_all_objects(root_file):
         else:
             objects[name] = obj
     return objects
+
+
+def same_channel(name1: str, name2: str) -> bool:
+    suffix1 = name1.split('_')[-1]
+    suffix2 = name2.split('_')[-1]
+
+    # Check if neither string ends with 'd<number>'
+    if not suffix1.startswith('d') or not suffix2.startswith('d'):
+        return False
+
+    try:
+        return int(suffix1[1:]) == int(suffix2[1:])
+    except ValueError:
+        return False

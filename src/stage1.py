@@ -75,6 +75,30 @@ def apply_correction(root_dict, correction_func, correction_name, keyword, norm_
     corrected_dict = utils.add_to_dict(corrected_dict,root_dict)
     return corrected_dict
 
+def apply_corrections(root_dict, correction_func, correction_name, keyword, norm_hist_dict=None):
+    """
+    Applies a correction function to all histograms in the root dict, renames them,
+    and stores the result in a new subdirectory with the correction name.
+    """
+    corrected_dict = utils.get_from_dict(root_dict,keyword)
+    root_dict = utils.remove_from_dict(root_dict,keyword)
+
+    # Apply the correction function to all histograms, rename them and store the result in a new subdirectory
+    for key, hist in corrected_dict.items():
+        if not isinstance(hist, dict):
+            print("Cannot apply corrections to single histogram.")
+            continue
+                    
+        for sub_key, sub_hist in hist.items():
+            for norm_sub_key, norm_sub_hist in norm_hist_dict.items():
+                if utils.same_channel(sub_key,norm_sub_key):
+                    print(f"Applying {correction_name} to {sub_key} using {norm_sub_key}")
+                    corrected_dict[key][sub_key] = correction_func(sub_hist, correction_name, norm_sub_hist)
+            
+    corrected_dict = utils.rename_keys_in_dict(corrected_dict,correction_name)
+    corrected_dict = utils.add_to_dict(corrected_dict,root_dict)
+    return corrected_dict
+
 
 
 
