@@ -64,15 +64,15 @@ stage0_output.root
 └── hEn_all_gate_Bo
 ```
 
-## Stage 1: Physics Analysis and Correctoions (`stage1_analysis.py`)
+## Stage 1: Physics Analysis and Corrections (`stage1_analysis.py`)
 
-Stage 1 is dedicated to the actual physics analysis. It takes the calibrated and cut histograms from stage 0 and applies specific algorithms and performs corrections. This stage may involve fitting, modeling, or other techniques to obtain the desired results. This should be done in a user defined correction function that is passed to `apply_corrections()`. Users can define multiple correction, apply these corrections, then write the results to a root file `stage1_output.root` for futher analysis. As with stage 0, nested dicts are use as containers for root files.
+Stage 1 is dedicated to the actual physics analysis. It takes the calibrated and cut histograms from stage 0 and applies specific algorithms and performs corrections. This stage may involve fitting, modeling, or other techniques to obtain the desired results. This should be done in a user defined correction function that is passed to `apply_corrections()`. Users can define multiple correction, apply these corrections, then write the results to a root file `stage1_output.root` for further analysis. As with stage 0, nested dicts are use as containers for root files.
 
 To use stage 1 functions create a python script or an IPython Notebook and import the `stage1.py` module. The basic outline for using the stage 1 module is to:
 
-1. Read histogramss from `stage0_output.root` into a dict
-2. Load any supplimentary data and create any correction histograms
-3. Apply corrctions by passing the dict, correction function, and correction histogram to `apply_corrections()`
+1. Read histograms from `stage0_output.root` into a dict
+2. Load any supplementary data and create any correction histograms
+3. Apply corrections by passing the dict, correction function, and correction histogram to `apply_corrections()`
 4. Write the corrected dict to a root file
 
 ## Stage 2: Statistical Analysis and Final Result (`stage2_analysis.py`)
@@ -81,13 +81,13 @@ The focus of stage 2 is statistical analysis and the production of the final res
 
 To use stage 2 functions create a python script or an IPython Notebook and import the `stage2.py` module. The basic outline for using the stage 1 module is to:
 
-1. Read the detecotor location map, histograms, and background histograms to lists
-2. Perform background substraction (Will be moved to `stage1.py`)
+1. Read the detector location map, histograms, and background histograms to lists
+2. Perform background subtraction (Will be moved to `stage1.py`)
 3. Calculate `N_L` and `N_H` for each detector
 4. Add `N_L` and `N_H` by angle
 5. Calculate `A_LH` and the associated error `dA_LH` for each angle
 6. Create the `ROOT.TGraph` and plot
-7. Plot and perfrom linear fit to extract slope
+7. Plot and perform linear fit to extract slope
 
 ## Contributing
 
