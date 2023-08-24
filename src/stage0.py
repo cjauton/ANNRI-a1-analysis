@@ -59,6 +59,8 @@ def read_rawroot_to_dict(file_name):
         .Define("tof_mus","tof_ns/1000.0+0.0000001")
         .Define("En","pow((72.3*21.5/(tof_ns/1000.0)),2)+0.00001")
         .Define("Egam","Numba::calc_Egam(detector,PulseHeight)"))
+    
+    df.Describe().Print()
 
     df_ch = []
 
