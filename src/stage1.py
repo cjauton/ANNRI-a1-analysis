@@ -70,6 +70,7 @@ def apply_correction(root_dict, correction_func, correction_name, keyword, norm_
             continue
         
         for subkey, subhist in hist.items():
+                print(f"Applying {correction_name} to {subkey} using {norm_hist.GetName()}")
                 corrected_dict[key][subkey] = correction_func(subhist, correction_name, norm_hist)   
     corrected_dict = utils.rename_keys_in_dict(corrected_dict,correction_name)
     corrected_dict = utils.add_to_dict(corrected_dict,root_dict)
