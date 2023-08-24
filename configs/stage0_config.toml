@@ -90,12 +90,48 @@ bins.up = 100000
 bins.N = 100000
 bins.var = true
 
-[hist.hEn_gt_zero]
-name = "hEn_gt_zero"
+[hist.hEn_gtzero]
+name = "hEn_gtzero"
 xaxis = "En [eV]"
 yaxis = "counts"
 col = "En"
 gate = "PulseHeight > 0"
+all = false
+bins.down = 0
+bins.up = 100000
+bins.N = 100000
+bins.var = true
+
+[hist.hEn_pu]
+name = "hEn_pu"
+xaxis = "En [eV]"
+yaxis = "counts"
+col = "En"
+gate = "Flags == 32768"
+all = false
+bins.down = 0
+bins.up = 100000
+bins.N = 100000
+bins.var = true
+
+[hist.hEn_npu]
+name = "hEn_npu"
+xaxis = "En [eV]"
+yaxis = "counts"
+col = "En"
+gate = "Flags != 32768"
+all = false
+bins.down = 0
+bins.up = 100000
+bins.N = 100000
+bins.var = true
+
+[hist.hEn_npu_gtzero]
+name = "hEn_npu_gtzero"
+xaxis = "En [eV]"
+yaxis = "counts"
+col = "En"
+gate = "Flags != 32768 && PulseHeight > 0"
 all = false
 bins.down = 0
 bins.up = 100000
