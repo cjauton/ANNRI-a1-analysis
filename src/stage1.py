@@ -8,7 +8,6 @@ config = config_loader.load("../configs/stage1_config.toml")
 
 def get_cross_section(file_name: str, xbins: list[float]) -> ROOT.TH1D:
     """Take a file name as a string and returns the cross section """
-
     file = open(file_name, "r")
     file.readline()
     
@@ -21,7 +20,6 @@ def get_cross_section(file_name: str, xbins: list[float]) -> ROOT.TH1D:
         crossSection.append(float(values[1]))  # barns
 
     file.close()
-
 
     graph = ROOT.TGraph(len(energy), np.array(energy), np.array(crossSection))
 
@@ -37,7 +35,6 @@ def get_cross_section(file_name: str, xbins: list[float]) -> ROOT.TH1D:
 
 def get_beam_intensity(file_name: str, cross_section: ROOT.TH1D) -> ROOT.TH1D:
     """Test"""
-    
     file_in = ROOT.TFile(file_name)
     # dir=file_in.Get("hEn_all_gate_Bo")
     # hEn_all_gate_Bo = dir.Get("hEn_all_gate_Bo")
@@ -99,6 +96,51 @@ def apply_corrections(root_dict, correction_func, correction_name, keyword, norm
     corrected_dict = utils.rename_keys_in_dict(corrected_dict,correction_name)
     corrected_dict = utils.add_to_dict(corrected_dict,root_dict)
     return corrected_dict
+
+
+def beam_correction(hist: ROOT.TH1, correction_name: str, beam_hist: ROOT.TH1) -> ROOT.TH1:
+    """"""
+    
+    hist.Divide(beam_hist)
+    name = hist.GetName()
+    hist.SetName(utils.rename_string(name, correction_name))
+    hist.SetTitle(utils.rename_string(name, correction_name))
+    hist.GetYaxis().SetTitle("Arbitrary Units [A.U.]")
+
+    return hist
+
+
+def pu_correction(hist: ROOT.TH1, correction_name: str, pu_corr_hist: ROOT.TH1) -> ROOT.TH1:
+    """"""
+   
+    hist.Multiply(pu_corr_hist)
+    name = hist.GetName()
+    hist.SetName(utils.rename_string(name, correction_name))
+    hist.SetTitle(utils.rename_string(name, correction_name))
+    hist.GetYaxis().SetTitle("Arbitrary Units [A.U.]")
+
+    return hist
+
+def calc_purate1 (hist_zero: ROOT.TH1, hist_gt_zero: ROOT.TH1) -> ROOT.TH1:
+    """"""
+    return (hist_zero + hist_gt_zero)/hist_gt_zero
+    
+    
+def calc_purate2 (hist_pu: ROOT.TH1, hist_npu: ROOT.TH1) -> ROOT.TH1:
+    """"""
+    return (hist_pu+hist_npu)/hist_npu
+
+
+def get_pu_corr_dict(gtzero_dict, zero_dict):
+    """"""
+    pu_corr_dict = {}
+    
+    for key, hist in gtzero_dict["hEn_gtzero"].items():
+        for key1, hist1 in zero_dict["hEn_zero"].items():
+            if utils.same_channel(key,key1):
+                pu_corr_dict[f"pucorr_{key.split('_')[-1]}"] = calc_purate1(hist1,hist)
+                
+    return pu_corr_dict
 
 
 

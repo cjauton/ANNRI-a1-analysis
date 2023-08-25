@@ -1,27 +1,25 @@
 import ROOT
-import numba
-import config_loader
+# import numba
 import csv
 import numpy as np
-from pathlib import Path
 import utils
 
-MODULE_DIR = Path(__file__).parent
-CONFIG_PATH = MODULE_DIR / '../configs/stage0_config.toml'
-CALIB_PATH = MODULE_DIR / "../calib/calib_apr.csv"
+# TODO: Add function descriptions
+
+config = utils.load_config("../configs/stage0_config.toml")
 
 
-
-config = config_loader.load(CONFIG_PATH)
+CALIB_PATH = config['general']['CALIB_PATH']
+numch = config['general']['numch']
 
 def extract_calib_from_csv(filename, numch):
-    # Initialize the arrays with default values
+    """"""
     calib_slope = np.ones(numch)
     calib_offset = np.zeros(numch)
 
     with open(filename, 'r') as file:
         reader = csv.reader(file)
-        next(reader)  # Skip the header
+        next(reader)  
         
         for row in reader:
             index = int(row[0])
@@ -30,16 +28,17 @@ def extract_calib_from_csv(filename, numch):
             
     return calib_slope, calib_offset
 
-filename = MODULE_DIR / "../../calib/calib_apr.csv"
-numch = config['general']['numch']
-calib_slope, calib_offset = extract_calib_from_csv(CALIB_PATH, numch)
 
+
+calib_slope, calib_offset = extract_calib_from_csv(CALIB_PATH, numch)
 
 @ROOT.Numba.Declare(["int","int"], "double")
 def calc_Egam(detector,PulseHeight):
+    """"""
     return PulseHeight*calib_slope[detector]+calib_offset[detector]
 
 def read_rawroot_to_dict(file_name):
+    """"""
 
     ROOT.EnableImplicitMT()
 
@@ -53,7 +52,8 @@ def read_rawroot_to_dict(file_name):
     # file_name = "data/rawroot_run_0064*"
 
 
-    df = ROOT.RDataFrame(tree_name, file_name)
+    # df = ROOT.RDataFrame(tree_name, file_name)
+    df = ROOT.RDataFrame(file_name)
 
     df = (df.Define("tof_ns","tof*10.0")
         .Define("tof_mus","tof_ns/1000.0+0.0000001")

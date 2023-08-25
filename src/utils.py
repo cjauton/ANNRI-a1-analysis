@@ -2,6 +2,8 @@ import ROOT
 import numpy as np
 import toml
 
+# TODO: Add function descriptions
+
 def tof_1mus_to_En(TOF: any, length: float) -> any:
     """Converts TOF in units of mu s to neutron energy 
     in eV using the length from moderator to target L in m"""
@@ -21,7 +23,7 @@ def tof_1ns_to_En(TOF: any, length: float) -> any:
     return ((72.3 * length) / (TOF*10))**2
 
 def get_xbins_En_10ns(Nbins: int, down: int, up: int, length: float) -> list:
-    """**DEPRICATED**Takes tof bin information and flight path length 
+    """**DEPRECATED**Takes tof bin information and flight path length 
     in m and return xbins_En"""
     
     xbins_tof = np.linspace(up/Nbins, up+up/Nbins, Nbins+1)
@@ -31,7 +33,7 @@ def get_xbins_En_10ns(Nbins: int, down: int, up: int, length: float) -> list:
     return xbins_En
 
 def get_xbins(Nbins: int, down: int, up: int, varbins: bool, fp_length: float) -> list[float]:
-    """Takes bin information, a boolian varbins, and the flight path length and 
+    """Takes bin information, a boolean varbins, and the flight path length and 
     returns xbins."""
 
     if varbins:
@@ -50,6 +52,7 @@ def get_xbins(Nbins: int, down: int, up: int, varbins: bool, fp_length: float) -
     
 
 def load_config(path):
+    """"""
     with open(path, "r") as f:
         return toml.load(f)
 
@@ -121,12 +124,15 @@ def get_all_keys(root_file: ROOT.TFile) -> list:
     return keys
 
 def sort_dict_by_keys(input_dict):
+    """"""
     if not isinstance(input_dict, dict):
         return input_dict
     return {k: sort_dict_by_keys(input_dict[k]) for k in sorted(input_dict)}
 
 def sort_dict_by_type_and_key(input_dict):
+    """"""
     return {k: input_dict[k] for k in sorted(input_dict, key=lambda x: (str(type(input_dict[x])), x))}
+
 
 def get_hist(filename, keyword):
     """Returns the histogram from a file that exactly matches the given keyword."""
@@ -161,34 +167,8 @@ def add_to_dict(root_dict: dict, corrected_dict: dict) -> dict:
     root_dict.update(corrected_dict)
     return root_dict
 
-# def rename_keys_in_dict(corrected_dict: dict, correction_name: str) -> dict:
-#     def rename_key(key: str) -> str:
-#         return key + '_' + correction_name
-    
-#     return {
-#         rename_key(key): 
-#             {rename_key(subkey): subhist for subkey, subhist in hist.items()} 
-#             if isinstance(hist, dict) else hist 
-#         for key, hist in corrected_dict.items()
-#     }
-    
-# def rename_keys_in_dict(corrected_dict: dict, correction_name: str) -> dict:
-#     def rename_key(key: str) -> str:
-#         parts = key.split('_')
-#         if parts[-1].startswith('d') and parts[-1][1:].isdigit():
-#             new_key = "_".join(parts[:-1] + [correction_name, parts[-1]])
-#         else:
-#             new_key = key + '_' + correction_name
-#         return new_key
-
-#     return {
-#         rename_key(key): 
-#             {rename_key(subkey): subhist for subkey, subhist in hist.items()} 
-#             if isinstance(hist, dict) else hist 
-#         for key, hist in corrected_dict.items()
-#     }
-
 def rename_string(input_string: str, correction_name: str) -> str:
+    """"""
     parts = input_string.split('_')
     if parts[-1].startswith('d') and parts[-1][1:].isdigit():
         return "_".join(parts[:-1] + [correction_name, parts[-1]])
@@ -219,6 +199,7 @@ def get_all_objects(root_file):
 
 
 def same_channel(name1: str, name2: str) -> bool:
+    """"""
     suffix1 = name1.split('_')[-1]
     suffix2 = name2.split('_')[-1]
 

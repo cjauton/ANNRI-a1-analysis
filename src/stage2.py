@@ -100,7 +100,7 @@ def calc_N_LH(hist: list[ROOT.TH1], energy: float, width: float) -> tuple[np.arr
 
 
 def add_by_angle(list_by_det: list[list[any]], det_angle: list[list[int]]) -> list[any]:
-    """DEPRICATED
+    """DEPRECATED
     
     Takes a lists of lists to be added by detector
     """
