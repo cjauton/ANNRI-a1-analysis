@@ -95,7 +95,8 @@ def read_root_to_dict(filename: str) -> dict:
                 read_hist(hist_dict[name], obj)
 
             else:
-                obj.SetDirectory(0)
+                if isinstance(obj, ROOT.TH1):
+                    obj.SetDirectory(0)
                 hist_dict[name] = obj
                 
     hist_dicts = {}
