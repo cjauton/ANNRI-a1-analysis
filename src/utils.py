@@ -1,6 +1,7 @@
 import ROOT
 import numpy as np
 import toml
+import pandas as pd
 
 # TODO: Add function descriptions
 
@@ -52,11 +53,32 @@ def get_xbins(Nbins: int, down: int, up: int, varbins: bool, fp_length: float) -
     
 
 def load_config(path):
+    """DEPRECATED"""
+    with open(path, "r") as f:
+        return toml.load(f)
+    
+def load_toml_to_dict(path):
     """"""
     with open(path, "r") as f:
         return toml.load(f)
 
 
+def load_det_map(filename):
+    """"""
+    run_info = load_config(filename)
+
+    df = pd.DataFrame(run_info["det"]).T
+    df.index = df.channel
+    del df["channel"]
+    
+    return df.to_dict(orient="list")
+
+def write_det_map_to_file(dict, filename):
+    """"""
+    with open(filename,'w') as f:
+     toml.dump(dict,f)
+   
+        
 def write_dict_to_root(hist_dict: dict, filename: str):
     """Takes a dictionary of histograms and writes them to a root file named filename"""
 
