@@ -11,7 +11,7 @@ def get_det_angle (file_name: str) -> list[int]:
     file = ROOT.TFile(file_name)
     det_pos_graph = file.Get("det_pos_graph")
     det_pos = []
-    pos_angle = [-1,71,90,109,109,90,71,90,-1,71,90,109,109,90,71,90,-1,36,72,108,144,-1,-1,-1,-1,144,108,72,36,-1,-1,-1] 
+    pos_angle = [-1,71,90,109,109,90,71,90,-1,71,90,109,109,90,71,90,-1,144,108,72,36,-1,-1,-1,-1,144,108,72,36,-1,-1,-1] 
     det_angle = []
 
     for i in range(det_pos_graph.GetN()):
