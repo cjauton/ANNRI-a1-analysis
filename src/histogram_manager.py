@@ -1,9 +1,16 @@
 import ROOT
 
 class HistogramManager:
-    def __init__(self, filename):
-        self.filename = filename
-        self._histograms = self._load_histograms_from_file()
+    def __init__(self, input_data):
+        """Initialize with either a filename or a dictionary of histograms."""
+        if isinstance(input_data, str):  # If the input is a filename
+            self.filename = input_data
+            self._histograms = self._load_histograms_from_file()
+        elif isinstance(input_data, dict):  # If the input is a dictionary of histograms
+            self.filename = "No File"
+            self._histograms = input_data
+        else:
+            raise ValueError("Expected a filename or a dictionary of histograms.")  
 
     def _load_histograms_from_file(self):
         """Takes a root file named filename and returns a dictionary of histograms"""
