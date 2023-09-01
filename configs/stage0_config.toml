@@ -1,187 +1,21 @@
-# stage0_config.toml
+# Congfig for the stage 0 module. This config is loaded on module import.
 
-# general configuration
 [general]
 stage = "stage0"
+data_format = "2020" 
 tree_name = "rawTree"
 nuclei = "127I"
 numch = 32
 fp_length = 21.5
 pu_flag = 32768
 fo_flag = 65536
-CONFIG_PATH = "../configs/stage0_config.toml"
-CALIB_PATH =  "../calib/calib_apr.csv"
-INPUT_PATH = "../data/"
-OUTPUT_PATH = "../output/stage0_output.root"
+
+[paths]
+hist_def = "../configs/hist_def.toml"
+calib =  "../calib/calib_apr.csv"
+run_info = "../data/run_info1.toml"
+det_map = "../configs/dest_map.toml"
+input = "../data/"
+output = "../output/stage0_output.root"
 
 
-# Histograms
-# Add new table to add more histograms 
-
-[hist.hTOF_mus]
-name = "hTOF_mus"
-xaxis = "TOF [#mus]"
-yaxis = "counts"
-col = "tof_mus"
-gate = ""
-all = false
-bins.down = 0
-bins.up = 1000
-bins.N = 100000
-bins.var = false
-
-# [hist.hTOF_ns]
-# name = "hTOF_ns"
-# xaxis = "TOF [ns]"
-# yaxis = "counts"
-# col = "tof_ns"
-# gate = ""
-# all = false
-# bins.down = 0
-# bins.up = 1000000
-# bins.N = 100000
-# bins.var = false
-
-# [hist.hTOF_10ns]
-# name = "hTOF_10ns"
-# xaxis = "TOF [#mus]"
-# yaxis = "counts"
-# col = "tof"
-# gate = ""
-# all = false
-# bins.down = 0
-# bins.up = 100000
-# bins.N = 100000
-# bins.var = false
-
-[hist.hEgam]
-name = "hEgam"
-xaxis = "Egam [keV]"
-yaxis = "counts"
-col = "Egam"
-gate = ""
-all = false
-bins.down = 0
-bins.up = 12000
-bins.N = 12000
-bins.var = false
-
-[hist.hEn]
-name = "hEn"
-xaxis = "En [eV]"
-yaxis = "counts"
-col = "En"
-gate = ""
-all = false
-bins.down = 0
-bins.up = 100000
-bins.N = 100000
-bins.var = true
-
-[hist.hEn_zero]
-name = "hEn_zero"
-xaxis = "En [eV]"
-yaxis = "counts"
-col = "En"
-gate = "PulseHeight == 0"
-all = false
-bins.down = 0
-bins.up = 100000
-bins.N = 100000
-bins.var = true
-
-[hist.hEn_gtzero]
-name = "hEn_gtzero"
-xaxis = "En [eV]"
-yaxis = "counts"
-col = "En"
-gate = "PulseHeight > 0"
-all = false
-bins.down = 0
-bins.up = 100000
-bins.N = 100000
-bins.var = true
-
-[hist.hEn_pu]
-name = "hEn_pu"
-xaxis = "En [eV]"
-yaxis = "counts"
-col = "En"
-gate = "Flags == 32768"
-all = false
-bins.down = 0
-bins.up = 100000
-bins.N = 100000
-bins.var = true
-
-[hist.hEn_npu]
-name = "hEn_npu"
-xaxis = "En [eV]"
-yaxis = "counts"
-col = "En"
-gate = "Flags != 32768"
-all = false
-bins.down = 0
-bins.up = 100000
-bins.N = 100000
-bins.var = true
-
-[hist.hEn_npu_gtzero]
-name = "hEn_npu_gtzero"
-xaxis = "En [eV]"
-yaxis = "counts"
-col = "En"
-gate = "Flags != 32768 && PulseHeight > 0"
-all = false
-bins.down = 0
-bins.up = 100000
-bins.N = 100000
-bins.var = true
-
-[hist.hEn_gate_FA]
-name = "hEn_gate_FA"
-xaxis = "En [eV]"
-yaxis = "counts"
-col = "En"
-gate = "Egam >= 6637 && Egam <= 6702"
-all = false
-bins.down = 0
-bins.up = 100000
-bins.N = 100000
-bins.var = true
-
-[hist.hEn_gate_SE]
-name = "hEn_gate_SE"
-xaxis = "En [eV]"
-yaxis = "counts"
-col = "En"
-gate = "Egam >= 6150 && Egam <= 6194"
-all = false
-bins.down = 0
-bins.up = 100000
-bins.N = 100000
-bins.var = true
-
-[hist.hEn_gate_FA_bkg]
-name = "hEn_gate_FA_bkg"
-xaxis = "En [eV]"
-yaxis = "counts"
-col = "En"
-gate = "Egam >= 6777 && Egam <= 7044"
-all = false
-bins.down = 0
-bins.up = 100000
-bins.N = 100000
-bins.var = true
-
-[hist.hEn_all_gate_Bo]
-name = "hEn_all_gate_Bo"
-xaxis = "En [eV]"
-yaxis = "counts"
-col = "En"
-gate = "Egam >= 466 && Egam <= 490"
-all = true
-bins.down = 0
-bins.up = 100000
-bins.N = 100000
-bins.var = true
