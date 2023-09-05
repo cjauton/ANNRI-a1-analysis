@@ -1,19 +1,33 @@
 import ROOT
+import utils
 
 class HistogramManager:
+    """
+    A class to manage ROOT histograms loaded from files or dictionaries.
+
+    Attributes:
+        filename (str): Path to the input file if provided, otherwise "No File".
+        _histograms (dict): Dictionary storing ROOT histograms.
+    """
+    
     def __init__(self, input_data):
         """Initialize with either a filename or a dictionary of histograms."""
-        if isinstance(input_data, str):  # If the input is a filename
+        if isinstance(input_data, str): 
             self.filename = input_data
             self._histograms = self._load_histograms_from_file()
-        elif isinstance(input_data, dict):  # If the input is a dictionary of histograms
+        elif isinstance(input_data, dict): 
             self.filename = "No File"
             self._histograms = input_data
         else:
             raise ValueError("Expected a filename or a dictionary of histograms.")  
 
     def _load_histograms_from_file(self):
-        """Takes a root file named filename and returns a dictionary of histograms"""
+        """
+        Load histograms from the specified file.
+
+        Returns:
+            dict: A dictionary with histogram names as keys and ROOT histogram objects as values.
+        """
 
         def recursive_read(hist_dict: dict, dir: ROOT.TDirectoryFile):
             """Takes a dictionary and a TDirectoryFile and recursively reads to the dictionary"""
@@ -39,13 +53,18 @@ class HistogramManager:
     
     @property
     def histograms(self):
-        """Lazy load histograms when they are accessed."""
+        """dict: Lazy load histograms and return them."""
         if self._histograms is None:
             self._histograms = self._load_histograms_from_file()
         return self._histograms
     
     def write(self, filename):
-        """Takes a dictionary of histograms and writes them to a root file named filename"""
+        """
+        Write histograms to the specified root file.
+
+        Args:
+            filename (str): Name of the root file to write histograms to.
+        """
 
         def recursive_write(hist_dict, dir):
             """Takes a dictionary and recursively writes to a TDirectoryFile"""
@@ -63,6 +82,120 @@ class HistogramManager:
 
         with ROOT.TFile(filename, 'recreate') as outfile:
             recursive_write(self.histograms, outfile)
+            
+    def plot_folder(self, key, xmin=None, xmax=None):
+        """
+        Plots all histograms within a folder or sub-dictionary on a single canvas, including empty ones.
+
+        Parameters:
+            key (str): Key representing a folder or sub-dictionary.
+            xmin (float, optional): The minimum x-axis value.
+            xmax (float, optional): The maximum x-axis value.
+
+        Returns:
+            ROOT.TCanvas: A canvas with histograms plotted.
+        """
+
+        obj = self._recursive_search(key, self.histograms)
+
+        if not obj or not isinstance(obj, dict):
+            print(f"No folder or sub-dictionary found with key: {key}")
+            return None
+
+        canvas = ROOT.TCanvas(f"canvas_{key}", f"Multiple Histograms for {key}", 1600, 1200)
+        canvas.Divide(8, 4) 
+
+        pad_counter = 1
+        for sub_key, hist in obj.items():
+            if pad_counter > 32:  
+                break
+            canvas.cd(pad_counter)
+            if isinstance(hist, ROOT.TH1):
+                if xmin is not None and xmax is not None:
+                    hist.GetXaxis().SetRangeUser(xmin, xmax)
+                hist.Draw()
+            pad_counter += 1
+
+        canvas.Update()
+        return canvas
+
+    def plot_single(self, key, xmin=None, xmax=None):
+        """
+        Plots a single histogram associated with the given key.
+
+        Parameters:
+            key (str): Key representing the histogram.
+            xmin (float, optional): The minimum x-axis value.
+            xmax (float, optional): The maximum x-axis value.
+
+        Returns:
+            ROOT.TCanvas: A canvas with the histogram plotted.
+        """
+
+        hist = self._recursive_search(key, self.histograms)
+
+        if not hist or not isinstance(hist, ROOT.TH1):
+            print(f"No histogram found with key: {key}")
+            return None
+
+        canvas = ROOT.TCanvas(f"canvas_single_{key}", f"Histogram for {key}", 800, 600)
+        
+        if xmin is not None and xmax is not None:
+            hist.GetXaxis().SetRangeUser(xmin, xmax)
+            
+        hist.Draw()
+        canvas.Update()
+        return canvas
+
+
+    def plot_by_angle(self, key, xmin=None, xmax=None, rebin_factor = None):
+        """
+        Plots a the histograms by angle orientated in a specific way.
+        
+        Parameters:
+            key (str): Key representing the histogram.
+            xmin (float, optional): The minimum x-axis value.
+            xmax (float, optional): The maximum x-axis value.
+
+        Returns:
+            ROOT.TCanvas: A canvas with the histogram plotted.
+        """
+       
+        if "angle" not in key:
+            print(f"Folder or sub-dictionary key must contain: 'angle'")
+            return None
+        
+        obj = self._recursive_search(key, self.histograms)
+
+        if not obj or not isinstance(obj, dict):
+            print(f"No folder or sub-dictionary found with key: {key}")
+            return None
+    
+
+        canvas = ROOT.TCanvas(f"canvas_{key}", f"Multiple Histograms for {key}", 1600, 1200)
+        canvas.Divide(3, 3) 
+
+        angle_index = [108,90,72,109,None,71,144,None,36]; 
+        
+        for i in range(9):
+            
+            if not angle_index[i]:
+                continue
+            
+            canvas.cd(i+1)
+            hist = obj[key+f"_{angle_index[i]:03d}"]
+            
+            if isinstance(hist, ROOT.TH1):
+                if rebin_factor:
+                    hist = hist.Clone().Rebin(rebin_factor)
+                if xmin is not None and xmax is not None:
+                    hist.GetXaxis().SetRangeUser(xmin, xmax)
+                hist.Draw("hist")
+        
+        canvas.Update()
+    
+        return canvas
+        
             
     def _recursive_search(self, key, dictionary):
         """
@@ -82,7 +215,111 @@ class HistogramManager:
                 result = self._recursive_search(key, v)
                 if result:
                     return result
-        return None          
+        return None   
+    
+    
+    def add_by_angle (self, key, det_angle):
+        """
+        Groups histograms by detector angle and combines them.
+
+        Given a specified key, this function searches for histograms corresponding to the key and
+        groups them by the detector angle. It then combines histograms that have the same angle. 
+        The resulting grouped histograms are stored in a dictionary with new keys formatted as 
+        "key_angle".
+
+        Parameters:
+        - key (str): The key used to search for histograms to group by angle.
+        - det_angle (dict): A dictionary mapping channel numbers (from the histogram key's suffix) 
+        to detector angles.
+
+        Returns:
+        None
+
+        Side Effects:
+        - Modifies the internal `_histograms` attribute by adding a new key-value pair 
+        corresponding to the angle-grouped histograms.
+
+        Notes:
+        - This function assumes that histogram keys have the channel number as a suffix in the 
+        format "_c#", where # is the channel number.
+        - Only histograms with angles present in the predefined `angle_list` are considered.
+
+        """
+        
+        angle_list = [36,71,72,90,108,109,144]
+        
+        
+        obj = self._recursive_search(key, self.histograms)
+
+        if not obj or not isinstance(obj, dict):
+            print(f"No folder or sub-dictionary found with key: {key}")
+            return None
+        
+        hist_model = obj[key+"_d0"].Clone()
+        hist_model.Reset()
+        
+        hist_angle_dict = {}
+        for sub_key, hist in obj.items():
+            ch = int(sub_key.split('_')[-1][1:])
+            angle = det_angle[ch]
+            
+            if angle not in angle_list:
+                continue
+        
+                
+            if key+f"_angle_{angle:03d}" not in hist_angle_dict:
+                # print(f"creating {angle} from {sub_key}")
+                hist.SetName(key+f"_angle_{angle:03d}")
+                hist.SetTitle(key+f"_angle_{angle:03d}")
+                hist_angle_dict[key+f"_angle_{angle:03d}"] = hist
+                continue
+            
+            # print(f"adding {sub_key} to {angle}")
+            hist_angle_dict[key+f"_angle_{angle:03d}"] =  hist_angle_dict[key+f"_angle_{angle:03d}"] + hist
+
+
+        for angle in angle_list:
+            if key+f"_angle_{angle:03d}" not in hist_angle_dict:
+                hist_model.SetName(key+f"_angle_{angle:03d}")
+                hist_model.SetTitle(key+f"_angle_{angle:03d}")
+                hist_angle_dict[key+f"_angle_{angle:03d}"] = hist_model
+
+        hist_angle_dict = utils.sort_dict_by_type_and_key(hist_angle_dict)
+        self._histograms[key+"_angle"] = hist_angle_dict
+        
+    def add(self, other):
+        """Add histograms from another HistogramManager instance."""
+        
+        if not isinstance(other, HistogramManager):
+            raise ValueError("Can only add instances of HistogramManager.")
+        
+        def is_histogram(obj):
+            """Check if the object is a histogram by trying to access the Add method."""
+            return hasattr(obj, 'Add') and callable(getattr(obj, 'Add'))
+
+        def recursive_add(target, source):
+            """Recursively adds histograms in nested dictionaries."""
+            
+            for key, value in source.items():
+                if key not in target:
+                    if is_histogram(value):
+                        target[key] = value
+                else:
+                    if isinstance(value, dict) and isinstance(target[key], dict):
+                        recursive_add(target[key], value)
+                    elif is_histogram(value) and is_histogram(target[key]):
+                        target[key].Add(value)
+
+        recursive_add(self._histograms, other.histograms)
+
+
+    def __add__(self, other):
+        """Override the + operator for HistogramManager instances."""
+        
+        new_manager = HistogramManager(self._histograms.copy())
+        new_manager.add(other)
+        return new_manager
+
 
 
     def plot(self, key, x_range=None):
@@ -96,11 +333,9 @@ class HistogramManager:
         Returns:
             list: A list of ROOT.TCanvas objects.
         """
-        # Retrieve the associated object using recursive search
         obj = self._recursive_search(key, self.histograms)
         canvases = []
 
-        # Check if the histogram or directory was found
         if not obj:
             print(f"No histogram or directory found with key: {key}")
             return canvases
@@ -114,16 +349,14 @@ class HistogramManager:
             canvas.Update()
             canvases.append(canvas)
 
-        # If it's a single histogram, draw it on a canvas and append to the list
         if isinstance(obj, ROOT.TH1):
             draw_histogram(obj, f"canvas_{key}")
 
-        # If it's a directory, draw each histogram on its own canvas and append to the list
         elif isinstance(obj, dict):
             for name, hist in obj.items():
                 if isinstance(hist, ROOT.TH1):
                     draw_histogram(hist, f"canvas_{name}")
-                elif isinstance(hist, dict):  # nested directories
+                elif isinstance(hist, dict):
                     canvases.extend(self.plot(name, x_range=x_range))
 
         else:
@@ -131,16 +364,54 @@ class HistogramManager:
 
         return canvases
 
+    def subtract_background(self, key, xmin = None, xmax = None):
+        """"""
+        NITER = 200
+        
+        obj = self._recursive_search(key, self.histograms)
 
+        if not obj:
+            print(f"No histogram or directory found with key: {key}")
+            return None
+        
+        self._histograms[key+"_bkg"] = {}
+        self._histograms[key+"_bkgsub"] = {}
+        
+        for name, hist in obj.items():
+            hist.GetXaxis().SetRangeUser(xmin, xmax)
+            hist_background = hist.ShowBackground(NITER,"nocompton")
+            hist_background_sub = hist - hist_background
+            
+            hist_background.SetName(key+"_bkg_"+name.split('_')[-1])
+            hist_background.SetTitle(key+"_bkg_"+name.split('_')[-1])
+            hist_background_sub.SetName(key+"_bkgsub_"+name.split('_')[-1])
+            hist_background_sub.SetTitle(key+"_bkgsub_"+name.split('_')[-1])
+            
+            self._histograms[key+"_bkg"][key+"_bkg_"+name.split('_')[-1]] = hist_background
+            self._histograms[key+"_bkgsub"][key+"_bkgsub_"+name.split('_')[-1]] = hist_background_sub
+            
+            
+        
+
+        
 
     def _repr_tree(self, dictionary):
+        """
+        Represent the tree structure of histograms and directories.
+
+        Args:
+            dictionary (dict): Dictionary to represent.
+
+        Returns:
+            int, str: Total number of objects and string representation of the tree structure.
+        """
         rows = []
         total_objects = 0
 
         for key, value in dictionary.items():
             if isinstance(value, dict):
                 first_object_type = type(list(value.values())[0]).__name__ if value else "Empty"
-                representation = f"📂 {first_object_type}"  # Folder icon represents a directory
+                representation = f"📂 {first_object_type}"  
                 total_objects += len(value)
                 rows.append((key, representation))
                 
@@ -153,10 +424,8 @@ class HistogramManager:
                 else:
                     rows.append((key, f"📊 {type(value).__name__}"))
 
-        # Sorting entries: directories first, then standalone histograms.
-        rows.sort(key=lambda x: (not x[1].startswith("📂"), x[0]))  # Prioritizing directories
+        rows.sort(key=lambda x: (not x[1].startswith("📂"), x[0])) 
             
-        # Creating a tabular representation
         max_key_len = max(len(row[0]) for row in rows)
         max_type_len = max(len(row[1]) for row in rows)
             
@@ -171,6 +440,7 @@ class HistogramManager:
 
 
     def __repr__(self):
+        """String representation of the HistogramManager object."""
         total_objects, tree_structure = self._repr_tree(self.histograms)
         header = f"<HistogramManager(filename='{self.filename}', total_objects={total_objects})>\n\n"
         return header + "\n" + tree_structure
