@@ -193,4 +193,14 @@ def linear_fit_and_plot (graph: ROOT.TGraphErrors) -> ROOT.TCanvas:
     ROOT.gStyle.SetOptFit(1)
     graph_canvas.Draw()
 
-    return graph_canvas
+    return graph_canvas, fitFunc.GetParameter(0)
+
+def linear_fit (graph: ROOT.TGraphErrors) -> ROOT.TCanvas:
+    """Takes TGraphErrors returns a plot with a linear fit"""
+
+
+    fitFunc = ROOT.TF1("fitFunc", "[0] * x + [1]")
+    graph.Fit(fitFunc, "Q")
+  
+
+    return fitFunc.GetParameter(0)
