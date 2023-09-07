@@ -65,7 +65,7 @@ def load_toml_to_dict(path):
 
 def load_det_map(filename):
     """"""
-    run_info = load_config(filename)
+    run_info = load_toml_to_dict(filename)
 
     df = pd.DataFrame(run_info["det"]).T
     df.index = df.channel
