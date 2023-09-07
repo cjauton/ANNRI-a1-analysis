@@ -14,7 +14,7 @@ fo_flag = 65536
 hist_def = "../configs/hist_def.toml"
 calib =  "../calib/calib_apr.csv"
 run_info = "../data/run_info1.toml"
-det_map = "../configs/dest_map.toml"
+det_map = "../output/det_map1.toml"
 input = "../data/"
 output = "../output/stage0_output.root"
 
