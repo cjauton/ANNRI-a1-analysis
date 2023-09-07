@@ -1,5 +1,6 @@
 import ROOT
 import utils
+import numpy as np
 
 class HistogramManager:
     """
@@ -190,6 +191,8 @@ class HistogramManager:
                     hist = hist.Clone().Rebin(rebin_factor)
                 if xmin is not None and xmax is not None:
                     hist.GetXaxis().SetRangeUser(xmin, xmax)
+                    
+                hist.ShowBackground(50,"nocompton same")
                 hist.Draw("hist")
         
         canvas.Update()
@@ -262,6 +265,8 @@ class HistogramManager:
         for sub_key, hist in obj.items():
             ch = int(sub_key.split('_')[-1][1:])
             angle = det_angle[ch]
+            
+            hist = hist.Clone()
             
             if angle not in angle_list:
                 continue
@@ -366,7 +371,7 @@ class HistogramManager:
 
     def subtract_background(self, key, xmin = None, xmax = None):
         """"""
-        NITER = 200
+        NITER = 40
         
         obj = self._recursive_search(key, self.histograms)
 
@@ -379,7 +384,7 @@ class HistogramManager:
         
         for name, hist in obj.items():
             hist.GetXaxis().SetRangeUser(xmin, xmax)
-            hist_background = hist.ShowBackground(NITER,"nocompton")
+            hist_background = hist.ShowBackground(NITER,"nocompton same")
             hist_background_sub = hist - hist_background
             
             hist_background.SetName(key+"_bkg_"+name.split('_')[-1])
@@ -393,7 +398,75 @@ class HistogramManager:
             
         
 
+    def rebin(self, key, factor):
+        """"""
         
+        obj = self._recursive_search(key, self.histograms)
+
+        if not obj:
+            print(f"No histogram or directory found with key: {key}")
+            return None
+        
+        self._histograms[key+f"_rebin{factor}"] = {}
+        
+        for name, hist in obj.items():
+            
+            hist = hist.Clone().Rebin(factor)
+            
+           
+            hist.SetName(key+f"_rebin{factor}_"+name.split('_')[-1])
+            hist.SetTitle(key+f"_rebin{factor}_"+name.split('_')[-1])
+            
+            self._histograms[key+f"_rebin{factor}"][key+f"_rebin{factor}_"+name.split('_')[-1]] = hist
+    
+    
+    
+    def _A_LH (N_L: float, N_H: float) -> float:
+        """Takes two floats N_L and N_H and returns A_LH"""
+
+        return (N_L - N_H) / (N_L + N_H)
+
+    def _dA_LH (N_L: float, N_H: float) -> float:
+        """Takes two floats N_L and N_H and returns dA_LH"""
+
+        return 2 * np.sqrt((N_L * N_L * N_H + N_L * N_H * N_H)) / (N_L + N_H) / (N_L + N_H)    
+    
+     
+    def calc_A_LH(self, key, energy, width):
+        """"""
+        
+        def _A_LH (N_L, N_H):
+            """Takes two floats N_L and N_H and returns A_LH"""
+
+            return (N_L - N_H) / (N_L + N_H)
+        
+        def _dA_LH (N_L, N_H):
+            """Takes two floats N_L and N_H and returns dA_LH"""
+
+            return 2 * np.sqrt((N_L * N_L * N_H + N_L * N_H * N_H)) / (N_L + N_H) / (N_L + N_H)    
+
+        obj = self._recursive_search(key, self.histograms)
+
+        if not obj:
+            print(f"No histogram or directory found with key: {key}")
+            return None
+        
+        
+        N_L = []
+        N_H = []
+        
+        
+        for name, hist in obj.items():
+            energy_bin = hist.FindBin(energy)
+            width_bin = int(width//hist.GetBinWidth(energy_bin))
+            # print(energy_bin,width_bin)
+            N_L.append(hist.Integral(energy_bin - width_bin, energy_bin - 1))
+            N_H.append(hist.Integral(energy_bin, energy_bin + width_bin))
+            
+        N_L = np.array(N_L)
+        N_H = np.array(N_H)
+        
+        return (_A_LH(N_L, N_H), _dA_LH(N_L, N_H))
 
     def _repr_tree(self, dictionary):
         """
