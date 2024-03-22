@@ -1,0 +1,374 @@
+# Histograms
+# Add new table to add more histograms 
+
+# [histograms.hTOF_mus]
+# name = "hTOF_mus"
+# xaxis = "TOF [#mus]"
+# yaxis = "counts"
+# col = "tof_mus"
+# gate = ""
+# all = false
+# bins.down = 0
+# bins.up = 3000 
+# bins.N = 300000 
+# bins.var = false
+
+# [histograms.hTOF_ns]
+# name = "hTOF_ns"
+# xaxis = "TOF [ns]"
+# yaxis = "counts"
+# col = "tof_ns"
+# gate = ""
+# all = false
+# bins.down = 0
+# bins.up = 300000
+# bins.N = 30000
+# bins.var = false
+
+# [histograms.hTOF_10ns]
+# name = "hTOF_10ns"
+# xaxis = "TOF [10ns]"
+# yaxis = "counts"
+# col = "tof"
+# gate = ""
+# all = false
+# bins.down = 0
+# bins.up = 300000 # default 100,000
+# bins.N = 300000 # degault 100,000
+# bins.var = false
+
+# [histograms.hPulseHeight]
+# name = "hPulseHeight"
+# xaxis = "pulse height"
+# yaxis = "counts"
+# col = "PulseHeight"
+# gate = ""
+# all = false
+# bins.down = 0
+# bins.up = 12000
+# bins.N = 12000
+# bins.var = false
+
+[histograms.hEgam]
+name = "hEgam"
+xaxis = "Egam [keV]"
+yaxis = "counts"
+col = "Egam"
+gate = ""
+all = false
+bins.down = 0
+bins.up = 12000
+bins.N = 12000
+bins.var = false
+
+[histograms.hEgam_all]
+name = "hEgam_all"
+xaxis = "Egam [keV]"
+yaxis = "counts"
+col = "Egam"
+gate = "PulseHeight > 0"
+all = true
+bins.down = 0
+bins.up = 12000
+bins.N = 12000
+bins.var = false
+
+# [histograms.hEgam_gated_10eV_all]
+# name = "hEgam_gated_10eV_all"
+# xaxis = "Egam [keV]"
+# yaxis = "counts"
+# col = "Egam"
+# gate = "En >= 9.8 && En <= 10.6 && PulseHeight > 0"
+# all = true
+# bins.down = 0
+# bins.up = 12000
+# bins.N = 12000
+# bins.var = false
+
+[histograms.hEn]
+name = "hEn"
+xaxis = "En [eV]"
+yaxis = "counts"
+col = "En"
+gate = ""
+all = false
+bins.down = 0
+bins.up = 100000
+bins.N = 100000
+bins.var = true
+
+[histograms.hEn_all]
+name = "hEn_all"
+xaxis = "En [eV]"
+yaxis = "counts"
+col = "En"
+gate = ""
+all = true
+bins.down = 0
+bins.up = 100000
+bins.N = 100000
+bins.var = true
+
+# [histograms.hEn_zero]  ######
+# name = "hEn_zero"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "PulseHeight == 0"
+# all = false
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+# [histograms.hEn_gtzero] #####
+# name = "hEn_gtzero"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "PulseHeight > 0"
+# all = false
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+# [histograms.hEn_pu]
+# name = "hEn_pu"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Flags == 32768"
+# all = false
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+# [histograms.hEn_npu]
+# name = "hEn_npu"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Flags != 32768"
+# all = false
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+# [histograms.hEn_npu_gtzero]
+# name = "hEn_npu_gtzero"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Flags != 32768 && PulseHeight > 0"
+# all = false
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+# [histograms.hEn_gate_FA]
+# name = "hEn_gate_FA"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Egam >= 6620 && Egam <= 6704" # default: "Egam >= 6637 && Egam <= 6702"
+# all = false
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+# [histograms.hEn_gate_FA_bkg]
+# name = "hEn_gate_FA_bkg"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Egam >= 6777 && Egam <= 7044"
+# all = false
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+# [histograms.hEn_gate_FE]
+# name = "hEn_gate_FE"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Egam >= 6150 && Egam <= 6194"
+# all = false
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+# [histograms.hEn_gate_FE_bkg]
+# name = "hEn_gate_FA_bkg"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Egam >= 6241 && Egam <= 6478"
+# all = false
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+# [histograms.hEn_all_gate_Bo]
+# name = "hEn_all_gate_Bo"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Egam >= 466 && Egam <= 490"
+# all = true
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+# [histograms.hEn_all_gate_Bo]
+# name = "hEn_all_gate_Bo"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Egam >= 466 && Egam <= 490"
+# all = true
+# bins.down = 0
+# bins.up = 360000
+# bins.N = 360000
+# bins.var = true
+
+
+
+###########################################################################
+
+# [histograms.hEn_gate6688keV_all]
+# name = "hEn_gate6688keV_all"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Egam >= 6620 && Egam <= 6704"
+# all = true
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+
+# [histograms.hEn_gate6177keV_all]
+# name = "hEn_gate6177keV_all"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Egam >= 6108 && Egam <= 6192"
+# all = true
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+# [histograms.hEn_gate6393keV_all]
+# name = "hEn_gate6393keV_all"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Egam >= 6192 && Egam <= 6620"
+# all = true
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+# [histograms.hEn_gate7117keV_all]
+# name = "hEn_gate7117keV_all"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Egam >= 7054 && Egam <= 7140"
+# all = true
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+
+# [histograms.hEn_gate7630keV_all]
+# name = "hEn_gate7630keV_all"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Egam >= 7330 && Egam <= 7570"
+# all = true
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+
+# [histograms.hEn_gateFASE] #####
+# name = "hEn_gateFASE"
+# xaxis = "En [eV]"
+# yaxis = "counts"
+# col = "En"
+# gate = "Egam >= 9316 && Egam <= 9408 || Egam >= 8854 && Egam <= 8894"
+# all = false
+# bins.down = 0
+# bins.up = 100000
+# bins.N = 100000
+# bins.var = true
+
+
+##################################################################################
+
+# [histograms.hEgam_gated_13eV_all]
+# name = "hEgam_gated_13eV_all"
+# xaxis = "Egam [keV]"
+# yaxis = "counts"
+# col = "Egam"
+# gate = "En >= 13.4 && En <= 14.1 && PulseHeight > 0"
+# all = true
+# bins.down = 0
+# bins.up = 12000
+# bins.N = 12000
+# bins.var = false
+
+# [histograms.hEgam_gated_13eV_bkg_all]
+# name = "hEgam_gated_13eV_bkg_all"
+# xaxis = "Egam [keV]"
+# yaxis = "counts"
+# col = "Egam"
+# gate = "((En >= 11.5 && En <= 13.0) || (En >= 14.5 && En <= 16.0)) && PulseHeight > 0"
+# all = true
+# bins.down = 0
+# bins.up = 12000
+# bins.N = 12000
+# bins.var = false
+
+
+
+# [histograms.hEgam_gated_4_5eV_all]
+# name = "hEgam_gated_4_5eV_all"
+# xaxis = "Egam [keV]"
+# yaxis = "counts"
+# col = "Egam"
+# gate = "En >= 4.3 && En <= 4.8 && PulseHeight > 0"
+# all = true
+# bins.down = 0
+# bins.up = 12000
+# bins.N = 12000
+# bins.var = false
+
+# [histograms.hEgam_gated_4_5eV_bkg_all]
+# name = "hEgam_gated_4_5eV_bkg_all"
+# xaxis = "Egam [keV]"
+# yaxis = "counts"
+# col = "Egam"
+# gate = "((En >= 3 && En <= 4) || (En >= 5 && En <= 6)) && PulseHeight > 0"
+# all = true
+# bins.down = 0
+# bins.up = 12000
+# bins.N = 12000
+# bins.var = false
