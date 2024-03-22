@@ -13,7 +13,7 @@ fo_flag = 65536
 
 
 [paths]
-boron = "../output/stage0_output_beam_NaI.root"
+boron = "../output/2019apr_asym_B.root"
 cross_section = "../data/nndc_data.txt"
-input = '../output/stage0_output_NaI1.root'
-output = '../output/stage1_output_NaI1.root'
+input = '../output/stage0_output.root'
+output = '../output/stage1_output.root'
