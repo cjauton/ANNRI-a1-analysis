@@ -103,7 +103,7 @@ class HistogramManager:
             print(f"No folder or sub-dictionary found with key: {key}")
             return None
 
-        canvas = ROOT.TCanvas(f"canvas_{key}", f"Multiple Histograms for {key}", 1600, 1200)
+        canvas = ROOT.TCanvas(f"canvas_{key}", f"Multiple Histograms for {key}", 3400, 1600)
         canvas.Divide(8, 4) 
 
         pad_counter = 1
@@ -149,7 +149,7 @@ class HistogramManager:
         return canvas
 
 
-    def plot_by_angle(self, key, xmin=None, xmax=None, rebin_factor = None):
+    def plot_by_angle(self, key, xmin=None, xmax=None):
         """
         Plots a the histograms by angle orientated in a specific way.
         
@@ -179,6 +179,7 @@ class HistogramManager:
         angle_index = [108,90,72,109,None,71,144,None,36]; 
         
         for i in range(9):
+            ROOT.gStyle.SetOptStat(0)
             
             if not angle_index[i]:
                 continue
@@ -187,13 +188,10 @@ class HistogramManager:
             hist = obj[key+f"_{angle_index[i]:03d}"]
             
             if isinstance(hist, ROOT.TH1):
-                if rebin_factor:
-                    hist = hist.Clone().Rebin(rebin_factor)
                 if xmin is not None and xmax is not None:
                     hist.GetXaxis().SetRangeUser(xmin, xmax)
                     
-                hist.ShowBackground(50,"nocompton same")
-                hist.Draw("hist")
+                hist.Draw("")
         
         canvas.Update()
     
@@ -251,6 +249,8 @@ class HistogramManager:
         
         angle_list = [36,71,72,90,108,109,144]
         
+        angle_scale = {}
+        
         
         obj = self._recursive_search(key, self.histograms)
 
@@ -277,9 +277,11 @@ class HistogramManager:
                 hist.SetName(key+f"_angle_{angle:03d}")
                 hist.SetTitle(key+f"_angle_{angle:03d}")
                 hist_angle_dict[key+f"_angle_{angle:03d}"] = hist
+                angle_scale[angle] = 1
                 continue
             
             # print(f"adding {sub_key} to {angle}")
+            angle_scale[angle]+=1
             hist_angle_dict[key+f"_angle_{angle:03d}"] =  hist_angle_dict[key+f"_angle_{angle:03d}"] + hist
 
 
@@ -289,6 +291,11 @@ class HistogramManager:
                 hist_model.SetTitle(key+f"_angle_{angle:03d}")
                 hist_angle_dict[key+f"_angle_{angle:03d}"] = hist_model
 
+        # for angle in angle_list:
+        #     if angle not in [36,144]:
+        #         continue
+        #     hist_angle_dict[key+f"_angle_{angle:03d}"].Scale(0)
+        
         hist_angle_dict = utils.sort_dict_by_type_and_key(hist_angle_dict)
         self._histograms[key+"_angle"] = hist_angle_dict
         
@@ -327,7 +334,7 @@ class HistogramManager:
 
 
 
-    def plot(self, key, x_range=None):
+    def plot(self, key, x_min=None, x_max=None):
         """
         Plots the histogram(s) associated with the given key. 
         
@@ -348,8 +355,8 @@ class HistogramManager:
         def draw_histogram(hist, canvas_name):
             """Helper function to draw a histogram on a canvas"""
             canvas = ROOT.TCanvas(canvas_name, f"Histogram Canvas - {canvas_name}", 800, 600)
-            if x_range:
-                hist.GetXaxis().SetRangeUser(*x_range)
+            if x_min and x_max:
+                hist.GetXaxis().SetRangeUser(x_min,x_max)
             hist.Draw()
             canvas.Update()
             canvases.append(canvas)
@@ -362,16 +369,16 @@ class HistogramManager:
                 if isinstance(hist, ROOT.TH1):
                     draw_histogram(hist, f"canvas_{name}")
                 elif isinstance(hist, dict):
-                    canvases.extend(self.plot(name, x_range=x_range))
+                    canvases.extend(self.plot(name, x_min,x_max))
 
         else:
             print(f"Key '{key}' does not correspond to a known object type.")
 
         return canvases
 
-    def subtract_background(self, key, xmin = None, xmax = None):
+    def subtract_background(self, key, xmin = None, xmax = None, niter = 20):
         """"""
-        NITER = 40
+        NITER = niter
         
         obj = self._recursive_search(key, self.histograms)
 
@@ -384,7 +391,7 @@ class HistogramManager:
         
         for name, hist in obj.items():
             hist.GetXaxis().SetRangeUser(xmin, xmax)
-            hist_background = hist.ShowBackground(NITER,"nocompton same")
+            hist_background = hist.ShowBackground(NITER,"same")
             hist_background_sub = hist - hist_background
             
             hist_background.SetName(key+"_bkg_"+name.split('_')[-1])
@@ -395,7 +402,17 @@ class HistogramManager:
             self._histograms[key+"_bkg"][key+"_bkg_"+name.split('_')[-1]] = hist_background
             self._histograms[key+"_bkgsub"][key+"_bkgsub_"+name.split('_')[-1]] = hist_background_sub
             
-            
+    
+    def get(self, key):
+        """"""
+        obj = self._recursive_search(key, self.histograms)
+
+        if not obj:
+            print(f"No histogram or directory found with key: {key}")
+            return None
+        
+        return obj
+             
         
 
     def rebin(self, key, factor):
@@ -407,19 +424,80 @@ class HistogramManager:
             print(f"No histogram or directory found with key: {key}")
             return None
         
-        self._histograms[key+f"_rebin{factor}"] = {}
+        self._histograms[key+f"_rebin"] = {}
         
         for name, hist in obj.items():
             
             hist = hist.Clone().Rebin(factor)
             
            
-            hist.SetName(key+f"_rebin{factor}_"+name.split('_')[-1])
-            hist.SetTitle(key+f"_rebin{factor}_"+name.split('_')[-1])
+            hist.SetName(key+f"_rebin_"+name.split('_')[-1])
+            hist.SetTitle(key+f"_rebin_"+name.split('_')[-1])
             
-            self._histograms[key+f"_rebin{factor}"][key+f"_rebin{factor}_"+name.split('_')[-1]] = hist
+            self._histograms[key+f"_rebin"][key+f"_rebin_"+name.split('_')[-1]] = hist
     
-    
+    def rebin_in_place(self, key, factor):
+        """"""
+        
+        obj = self._recursive_search(key, self.histograms)
+
+        if not obj:
+            print(f"No histogram or directory found with key: {key}")
+            return None
+        
+        for name, hist in obj.items():
+            hist = hist.Rebin(factor)
+            
+    def rebin_interpolate(self, key, bins_n, bins_down, bins_up):
+        """"""
+        
+        obj = self._recursive_search(key, self.histograms)
+
+        if not obj:
+            print(f"No histogram or directory found with key: {key}")
+            return None
+        
+        
+        for name, hist in obj.items():
+            
+            hist_rebin = hist.Clone()
+            hist_rebin.SetBins(bins_n,bins_down,bins_up)
+            hist_graph = ROOT.TGraph(hist)
+            
+            for i in range(1, bins_n+1):
+                x = hist_rebin.GetBinCenter(i)
+                y = hist_graph.Eval(x)
+                hist_rebin.SetBinContent(i, y)
+            
+            self._histograms[key][name] = hist_rebin
+         
+    def normalize_by_shot(self,key):
+        """"""
+        
+        obj = self._recursive_search(key, self.histograms)
+        
+        shot = obj[key+'_d8'].GetEntries()
+        print(shot)
+
+        if not obj:
+            print(f"No histogram or directory found with key: {key}")
+            return None
+        
+        for name, hist in obj.items():
+            
+            try:
+                hist.Scale(1/shot)
+            except ZeroDivisionError as e:
+                raise ZeroDivisionError("Channel d8 must be enabled or the histograms are empty." )
+                
+            if 'shot' in hist.GetYaxis().GetTitle():
+                print("Histograms already normalized by shot.")
+                return
+            else:
+                hist.GetYaxis().SetTitle("counts/shot")
+            
+            
+        
     
     def _A_LH (N_L: float, N_H: float) -> float:
         """Takes two floats N_L and N_H and returns A_LH"""
@@ -459,14 +537,134 @@ class HistogramManager:
         for name, hist in obj.items():
             energy_bin = hist.FindBin(energy)
             width_bin = int(width//hist.GetBinWidth(energy_bin))
+            print(energy_bin,width_bin)
             # print(energy_bin,width_bin)
-            N_L.append(hist.Integral(energy_bin - width_bin, energy_bin - 1))
-            N_H.append(hist.Integral(energy_bin, energy_bin + width_bin))
+            # N_L.append(hist.Integral(energy_bin - width_bin, energy_bin - 1))
+            # N_H.append(hist.Integral(energy_bin, energy_bin + width_bin))
+            N_L.append(hist.Integral(energy_bin - width_bin, energy_bin ))
+            N_H.append(hist.Integral(energy_bin+1, energy_bin + width_bin))
+           
             
+            
+            if N_H[-1] == 0 or N_L[-1]==0:
+                N_H[-1] = 0
+                N_L[-1] = 0
+                            
         N_L = np.array(N_L)
         N_H = np.array(N_H)
+        # print(N_L)
+        # print(N_H)
         
         return (_A_LH(N_L, N_H), _dA_LH(N_L, N_H))
+    
+
+    def calc_A_LH_error(self, key, energy, width):
+        """"""
+        
+        def _integral_error(hist, bin1, bin2):
+            
+            integral = hist.Integral(bin1, bin2)
+            
+            integralUncertainty = 0.0
+            for i in range(bin1, bin2 + 1):
+                binError = hist.GetBinError(i)
+                integralUncertainty += binError * binError
+
+            error = np.sqrt(integralUncertainty)
+            
+            return integral, error
+            
+        def _A_LH (N_L, N_H):
+            """Takes two floats N_L and N_H and returns A_LH"""
+
+            return (N_L - N_H) / (N_L + N_H)
+        
+        # def _dA_LH (N_L, N_H):
+        #     """Takes two floats N_L and N_H and returns dA_LH"""
+
+        #     return 2 * np.sqrt((N_L * N_L * N_H + N_L * N_H * N_H)) / (N_L + N_H) / (N_L + N_H)   
+        
+        def _dA_LH(N_L, N_H, sigma_N_L, sigma_N_H):
+            denominator = (N_L + N_H) ** 2
+            term1 = (N_H / denominator) * sigma_N_L
+            term2 = (-N_L / denominator) * sigma_N_H
+            
+            sigma_asymmetry = np.sqrt(term1 ** 2 + term2 ** 2)
+            return sigma_asymmetry 
+
+        obj = self._recursive_search(key, self.histograms)
+
+        if not obj:
+            print(f"No histogram or directory found with key: {key}")
+            return None
+        
+        
+        N_L_list = []
+        N_H_list = []
+        dN_L_list = []
+        dN_H_list = []
+        
+        
+        for name, hist in obj.items():
+            energy_bin = hist.FindBin(energy)
+            width_bin = int(width//hist.GetBinWidth(energy_bin))
+           
+           
+            N_L, dN_L = _integral_error(hist, energy_bin - width_bin, energy_bin)
+            N_H, dN_H = _integral_error(hist, energy_bin, energy_bin + width_bin)
+            
+            # print(N_L,N_H)
+            
+            N_L_list.append(N_L)
+            N_H_list.append(N_H)
+            dN_L_list.append(dN_L)
+            dN_H_list.append(dN_H)
+            
+            if N_H_list[-1] == 0 or N_L_list[-1]==0:
+                N_H_list[-1] = 0
+                N_L_list[-1] = 0
+            
+        # print(N_L_list)
+        # print(dN_L_list)     
+        # print(np.sqrt(N_L_list))           
+        N_L_list = np.array(N_L_list)
+        N_H_list = np.array(N_H_list)
+        dN_L_list = np.array(dN_L_list)
+        dN_H_list = np.array(dN_H_list)
+     
+        return (_A_LH(N_L_list, N_H_list), _dA_LH(N_L_list, N_H_list, dN_L_list, dN_H_list))
+
+    def integralerror(self, key, x1, x2):
+        
+        obj = self._recursive_search(key, self.histograms)
+
+        if not obj:
+            print(f"No histogram or directory found with key: {key}")
+            return None
+        
+        integral_list = []
+        error_list = []
+        for key, hist in obj.items():
+            bin1 = hist.GetXaxis().FindBin(x1)
+            bin2 = hist.GetXaxis().FindBin(x2)
+            
+            
+            integral = hist.Integral(bin1, bin2)
+            integral_list.append(integral)
+            
+            integralUncertainty = 0.0
+            for i in range(bin1, bin2 + 1):
+                binError = hist.GetBinError(i)
+                integralUncertainty += binError * binError
+
+            error = ROOT.TMath.Sqrt(integralUncertainty)
+            error_list.append(error)
+        
+        if isinstance(obj, dict):
+            return integral_list, error_list
+        else:
+            return integral_list[0], error_list[0]
+
 
     def _repr_tree(self, dictionary):
         """
@@ -503,7 +701,7 @@ class HistogramManager:
         max_type_len = max(len(row[1]) for row in rows)
             
         table_lines = [f"{'Name'.ljust(max_key_len)} | {'Type'.ljust(max_type_len)}"]
-        table_lines.append('-' * (max_key_len + max_type_len + 3))  # 3 = len(" | ")
+        table_lines.append('-' * (max_key_len + max_type_len + 4))  # 3 = len(" | ")
 
         for name, object_type in rows:
             table_lines.append(f"{name.ljust(max_key_len)} | {object_type.ljust(max_type_len)}")
