@@ -40,8 +40,9 @@ def get_xbins(Nbins: int, down: int, up: int, varbins: bool, fp_length: float) -
     if varbins:
         assert down >= 0, "Lower limit must be positive or zero!"
         assert type(fp_length) == float, "Length must be a floating point number!"
+        # print(down+(up-down)/Nbins, up+(up-down)/Nbins)
         
-        xbins_tof = np.linspace((up-down)/Nbins, up+(up-down)/Nbins, Nbins+1)
+        xbins_tof = np.linspace(down+(up-down)/Nbins, up+(up-down)/Nbins, Nbins+1)
         xbins_En=tof_10ns_to_En(xbins_tof, fp_length)
         xbins_En=np.sort(xbins_En)
 

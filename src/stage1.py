@@ -1,6 +1,5 @@
 import ROOT
 import utils
-import config_loader
 import numpy as np
 
 CONFIG_PATH = "../configs/stage1_config.toml"
@@ -34,7 +33,7 @@ def get_cross_section(file_name: str, xbins: list[float]) -> ROOT.TH1D:
 
     graph = ROOT.TGraph(len(energy), np.array(energy), np.array(crossSection))
 
-    hEn_sig_tot_10Bo = ROOT.TH1D("hEn_sig_tot_10Bo", "hEn_sig_tot_10Bo; Energy [eV]; Cross Section [b]", len(xbins)-1, xbins)
+    hEn_sig_tot_10Bo = ROOT.TH1D("hEn_sig_tot_10B", "hEn_sig_tot_10B; Energy [eV]; Cross Section [b]", len(xbins)-1, xbins)
 
     for i in range(1, len(xbins)):
         x = hEn_sig_tot_10Bo.GetBinCenter(i)
@@ -49,7 +48,7 @@ def get_beam_intensity(file_name: str, cross_section: ROOT.TH1D) -> ROOT.TH1D:
     file_in = ROOT.TFile(file_name)
     # dir=file_in.Get("hEn_all_gate_Bo")
     # hEn_all_gate_Bo = dir.Get("hEn_all_gate_Bo")
-    hEn_all_gate_Bo = file_in.Get("hEn_all_gate_Bo")
+    hEn_all_gate_Bo = file_in.Get("hEn_gate477_all")
     hEn_all_gate_Bo.SetDirectory(0)
 
     beam_intensity = hEn_all_gate_Bo
@@ -158,13 +157,13 @@ def get_pu_corr_dict(gtzero_dict, zero_dict):
 
 
 
-def get_bkg_dict(hEgam_dict, hEn_bkg_gate, gate, bkg_gate):
+def get_bkg_dict(hEgam_dict, hEn_bkg_gate, gate, bkg_gate1, bkg_gate2):
     bkg_dict = {}
     
     for key, hist in hEgam_dict["hEgam"].items():
-        for key1, hist1 in hEn_bkg_gate["hEn_gate_FA_bkg"].items():
+        for key1, hist1 in hEn_bkg_gate["hEn_gatebkg"].items():
             if utils.same_channel(key,key1):
-                bkg_dict[f"bkg_{key.split('_')[-1]}"] = calc_bkg_hist(hist,hist1,gate,bkg_gate)
+                bkg_dict[f"bkg_{key.split('_')[-1]}"] = calc_bkg_hist(hist,hist1,gate,bkg_gate1,bkg_gate2)
     
     return bkg_dict
 
@@ -178,17 +177,18 @@ def bkg_subtraction(hist: ROOT.TH1, correction_name: str, hist_bkg: ROOT.TH1) ->
 
     return hist
 
-def calc_bkg_hist(hEgam,hEn_gate_bkg,gate,gate_bkg):
+def calc_bkg_hist(hEgam,hEn_gate_bkg,gate,gate_bkg1,gate_bkg2):
     """"""
     
-    hEgam.GetXaxis().SetRangeUser(gate[0]-150,gate_bkg[1]+150)
-    hEgam_bkg = hEgam.ShowBackground(50)
+    hEgam.GetXaxis().SetRangeUser(gate_bkg1[0]-150,gate_bkg2[1]+150)
+    hEgam_bkg = hEgam.ShowBackground()
     # hEgam_bkg.SetName(hEgam.GetName()+"_bkg")
     
     try:     
         num = hEgam_bkg.Integral(hEgam_bkg.GetXaxis().FindBin(gate[0]),hEgam_bkg.GetXaxis().FindBin(gate[1]))
-        dem = hEgam_bkg.Integral(hEgam_bkg.GetXaxis().FindBin(gate_bkg[0]),hEgam_bkg.GetXaxis().FindBin(gate_bkg[1]))
-        scale = num/dem 
+        dem1 = hEgam_bkg.Integral(hEgam_bkg.GetXaxis().FindBin(gate_bkg1[0]),hEgam_bkg.GetXaxis().FindBin(gate_bkg1[1]))
+        dem2 = hEgam_bkg.Integral(hEgam_bkg.GetXaxis().FindBin(gate_bkg2[0]),hEgam_bkg.GetXaxis().FindBin(gate_bkg2[1]))
+        scale = num/(dem1+dem2) 
     except ZeroDivisionError:
         scale = 0
 

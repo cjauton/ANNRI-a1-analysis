@@ -24,6 +24,7 @@ def get_det_angle (file_name: str) -> list[int]:
     det_angle.append(-1)
     return det_angle
 
+
 def get_hist (file_name: str, dir_name: str) -> list[ROOT.TH1]:
     """Takes a string of a root file and a name of a histogram and returns a list of histograms"""
 
@@ -186,9 +187,13 @@ def create_A_LH_graph(x: np.array, y: np.array, dx: np.array = None , dy: np.arr
 def linear_fit_and_plot (graph: ROOT.TGraphErrors) -> ROOT.TCanvas:
     """Takes TGraphErrors returns a plot with a linear fit"""
 
+    # graph_canvas = ROOT.TCanvas(graph.GetTitle(), graph.GetTitle(), 1200,1000)
     graph_canvas = ROOT.TCanvas(graph.GetTitle(), graph.GetTitle(), 600,500)
+
     graph.Draw("AP")
-    fitFunc = ROOT.TF1("fitFunc", "[0] * x + [1]")
+    fitFunc = ROOT.TF1("fitFunc", "[slope] * x + [offset]")
+
+    
     graph.Fit(fitFunc, "Q")
     ROOT.gStyle.SetOptFit(1)
     graph_canvas.Draw()
@@ -200,7 +205,16 @@ def linear_fit (graph: ROOT.TGraphErrors) -> ROOT.TCanvas:
 
 
     fitFunc = ROOT.TF1("fitFunc", "[0] * x + [1]")
-    graph.Fit(fitFunc, "Q")
+    fit_result = graph.Fit(fitFunc, "Q S")
+    fitFunc.SetParName(0, "offset")
+    fitFunc.SetParName(1, "slope")
+    
+    slope = fitFunc.GetParameter(0)
+    slope_error = fit_result.Error(0)
+    slope_p_val = 1/2 * (1 - ROOT.TMath.Erf(slope/ROOT.TMath.Sqrt(2)/slope_error))
+    fit_p_value = fit_result.Prob()
+    # fit_p_value = fit_result.GetChisquare() / fit_result.Get()
+    
   
 
-    return fitFunc.GetParameter(0)
+    return slope, slope_error, slope_p_val, fit_p_value

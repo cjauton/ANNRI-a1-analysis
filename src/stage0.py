@@ -11,12 +11,13 @@ config = utils.load_toml_to_dict(CONFIG_PATH)
 
 NUMCH = config['general']['numch']
 FP_LENGTH = config['general']['fp_length']
+DATA_FORMAT = config['general']['data_format']
 paths = config['paths']
 
 HIST_DEF_PATH = paths['hist_def']
 CALIB_PATH = paths['calib']
 RUN_INFO_PATH = paths['run_info']
-DET_MAP_PATH = paths['det_map']
+# DET_MAP_PATH = paths['det_map']
 INPUT_PATH = paths['input']
 OUTPUT_PATH = paths['output']
 
@@ -25,7 +26,7 @@ hist_def = utils.load_toml_to_dict(HIST_DEF_PATH)
 
 
 det_map = utils.load_det_map(RUN_INFO_PATH)
-utils.write_det_map_to_file(det_map, DET_MAP_PATH)
+# utils.write_det_map_to_file(det_map, DET_MAP_PATH)
 
 ACTIVE_CH_LIST = det_map["active"]
 
@@ -58,10 +59,29 @@ def calc_Egam(detector,PulseHeight):
 def define_columns(df):
     """"""
     df = (df.Define("tof_ns", "tof*10.0")
-          .Define("tof_mus", "tof_ns/1000.0+0.0000001")
-          .Define("En", "pow((72.3*21.5/(tof_ns/1000.0)),2)+0.00001")
-          .Define("Egam", "Numba::calc_Egam(detector,PulseHeight)"))
-    
+            .Define("tof_10ns", "tof")
+            .Define("tof_mus", "tof_ns/1000.0+0.0000001")
+            .Define("En", "pow((72.3*21.5/(tof_ns/1000.0)),2)+0.00001")
+            .Define("Egam", "Numba::calc_Egam(detector,PulseHeight)+0.5")
+            .Define('Egam_rounded',"std::round(Egam)*1.0"))
+    # if DATA_FORMAT == "new":
+    #     print(DATA_FORMAT)
+    #     df = (df.Define("tof_ns", "tof*10.0")
+    #         .Define("tof_10ns", "tof")
+    #         .Define("tof_mus", "tof_ns/1000.0+0.0000001")
+    #         .Define("En", "pow((72.3*21.5/(tof_ns/1000.0)),2)+0.00001")
+    #         .Define("Egam", "Numba::calc_Egam(detector,PulseHeight)"))
+        
+    # elif DATA_FORMAT == "old":
+    #     print(DATA_FORMAT)
+    #     df = (df.Define("tof_ns", "tof*1000.0")
+    #         .Define("tof_10ns", "tof_ns/10.0+0.0000001")
+    #         .Define("tof_mus", "tof")
+    #         .Define("En", "pow((72.3*21.5/(tof_mus)),2)+0.00001")
+    #         .Define("Egam", "Numba::calc_Egam(detector,PulseHeight)"))
+    # else: 
+    #     df = 1
+        
     return df
 
 def filter_active_channels(df):
