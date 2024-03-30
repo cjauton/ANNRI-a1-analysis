@@ -17,6 +17,12 @@ def tof_10ns_to_En(TOF: any, length: float) -> any:
 
     return ((72.3 * length) / (TOF/100))**2
 
+def En_to_tof_10ns(En: any, length: float) -> any:
+    """Converts TOF in units of 10 ns to neutron energy 
+    in eV using the length from moderator to target L in m"""
+
+    return (72.3 * length) / (np.sqrt(En)/100)
+
 def tof_1ns_to_En(TOF: any, length: float) -> any:
     """Converts TOF in units of ns to neutron energy 
     in eV using the length from moderator to target L in m"""
@@ -30,6 +36,25 @@ def get_xbins_En_10ns(Nbins: int, down: int, up: int, length: float) -> list:
     xbins_tof = np.linspace(up/Nbins, up+up/Nbins, Nbins+1)
     xbins_En=tof_10ns_to_En(xbins_tof, length)
     xbins_En=np.sort(xbins_En)
+
+    return xbins_En
+
+def get_xbins_En(down: float, up: float,  fp_length: float, rebin: int = 1) -> list[float]:
+    """"""
+    
+    down_tof_10ns = int(En_to_tof_10ns(up,fp_length)) 
+    up_tof_10ns = int(En_to_tof_10ns(down,fp_length)) 
+    
+
+    Nbins = (up_tof_10ns - down_tof_10ns)//rebin
+    
+    # Nbins = int(Nbins)
+    
+    xbins_tof = np.linspace(down_tof_10ns+(up_tof_10ns-down_tof_10ns)/Nbins, 
+                            up_tof_10ns+(up_tof_10ns-down_tof_10ns)/Nbins, Nbins+1)
+    xbins_En=tof_10ns_to_En(xbins_tof, fp_length)
+    xbins_En=np.sort(xbins_En)
+
 
     return xbins_En
 
