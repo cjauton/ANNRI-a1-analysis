@@ -1,6 +1,6 @@
 [tool.pyright]
 typeCheckingMode = "off"
-useLibraryCodeForTypes = "true"
+useLibraryCodeForTypes =  true
 
 [tool.black]
 line-length = 88
