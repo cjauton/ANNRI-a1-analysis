@@ -58,6 +58,12 @@ def get_xbins_En(down: float, up: float,  fp_length: float, rebin: int = 1) -> l
 
     return xbins_En
 
+def get_xbins_Egam(down: float, up: float, rebin: int = 1) -> list[float]:
+    """"""
+    Nbins = (up - down)//rebin
+    xbins = np.linspace(down, up, Nbins+1)
+    return xbins
+
 def get_xbins(Nbins: int, down: int, up: int, varbins: bool, fp_length: float) -> list[float]:
     """Takes bin information, a boolean varbins, and the flight path length and 
     returns xbins."""
