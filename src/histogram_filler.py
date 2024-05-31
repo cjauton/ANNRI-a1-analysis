@@ -33,8 +33,13 @@ class HistogramFiller:
     calib_slope: np.ndarray = field(init=False)
     calib_offset: np.ndarray = field(init=False)
     ACTIVE_CH_LIST: list = field(init=False)
+    
+    instance_num = 0
 
     def __post_init__(self):
+        self.instance_id = __class__.instance_num
+        __class__.instance_num += 1
+     
         self.config = self.load_config(self.config_path)
         self.hist_def = self.load_histogram_definitions(self.hist_def_path)
         self.det_map = utils.load_det_map(self.config.paths['run_info'])
@@ -42,12 +47,15 @@ class HistogramFiller:
 
         self.calib_slope, self.calib_offset = self.extract_calib_from_csv(self.config.paths['calib'], self.config.numch)
         
-        calib_slope = self.calib_slope
-        calib_offset = self.calib_offset
         
-        @ROOT.Numba.Declare(["int","int"], "double")
-        def calc_Egam(detector, PulseHeight):
-            return PulseHeight * calib_slope[detector] + calib_offset[detector]
+        calib_slope_str = "{" + ",".join(map(str, self.calib_slope.tolist())) + "}"
+        calib_offset_str = "{" + ",".join(map(str, self.calib_offset.tolist())) + "}"
+        
+        ROOT.gInterpreter.Declare(f"""
+        std::vector<double> calib_slope_{self.instance_id} = {calib_slope_str};
+        std::vector<double> calib_offset_{self.instance_id} = {calib_offset_str};
+        """)
+
 
     def load_config(self, config_path):
         config_dict = utils.load_toml_to_dict(config_path)
