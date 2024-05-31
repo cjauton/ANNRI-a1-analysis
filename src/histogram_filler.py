@@ -26,15 +26,17 @@ class HistogramDefinition:
 class HistogramFiller:
     df: ROOT.RDataFrame
     config_path: str
+    hist_def_path: str
+    instance_id: int = field(init=False)
     config: Config = field(init=False)
-    hist_definitions: dict = field(init=False)
+    hist_def: dict = field(init=False)
     calib_slope: np.ndarray = field(init=False)
     calib_offset: np.ndarray = field(init=False)
     ACTIVE_CH_LIST: list = field(init=False)
 
     def __post_init__(self):
         self.config = self.load_config(self.config_path)
-        self.hist_definitions = self.load_histogram_definitions(self.config.paths['hist_def'])
+        self.hist_def = self.load_histogram_definitions(self.hist_def_path)
         self.det_map = utils.load_det_map(self.config.paths['run_info'])
         self.ACTIVE_CH_LIST = self.det_map["active"]
 
@@ -89,7 +91,7 @@ class HistogramFiller:
                           .Alias("tof_10ns", "tof")
                           .Define("tof_mus", "tof_ns/1000.0+0.0000001")
                           .Define("En", "pow((72.3*21.5/(tof_ns/1000.0)),2)+0.00001")
-                          .Define("Egam", "Numba::calc_Egam(detector,PulseHeight)+0.5")
+                          .Define("Egam", f"PulseHeight*calib_slope_{self.instance_id}[detector]+calib_offset_{self.instance_id}[detector]")
                           .Define('Egam_rounded', "std::round(Egam)*1.0"))
 
     def filter_active_channels(self):
@@ -108,7 +110,7 @@ class HistogramFiller:
                 "tof_10ns": utils.get_xbins_tof_10ns,
             }
         
-        for key, hist_def in self.hist_definitions.items():
+        for key, hist_def in self.hist_def.items():
             xaxis = hist_def.xaxis
             yaxis = hist_def.yaxis
             bins = hist_def.bins
@@ -139,7 +141,7 @@ class HistogramFiller:
 
     def create_df_dict(self):
         df_dict = {}
-        for key, hist_def in self.hist_definitions.items():
+        for key, hist_def in self.hist_def.items():
             gate = hist_def.gate
             name = hist_def.name
             df_gate = self.df if gate == "" else self.df.Filter(gate)
@@ -156,9 +158,9 @@ class HistogramFiller:
     def create_hist_dict(self, df_dict, hist_model_dict):
         hist_dict = {}
         for key, hist_model in hist_model_dict.items():
-            col = self.hist_definitions[key].col
+            col = self.hist_def[key].col
             
-            if self.hist_definitions[key].all:
+            if self.hist_def[key].all:
                 hist_dict[key] = df_dict[key].Histo1D(hist_model, col)
             else:
                 hist_dict[key] = {}
@@ -171,7 +173,7 @@ class HistogramFiller:
         df_ch = [self.df.Filter(f"detector == {ch}") for ch in range(self.config.numch)]
         hist_dict = {}
 
-        for key, hist_def in self.hist_definitions.items():
+        for key, hist_def in self.hist_def.items():
             name = hist_def.name
             xaxis = hist_def.xaxis
             yaxis = hist_def.yaxis
@@ -224,7 +226,7 @@ class HistogramFiller:
         df_ch = [self.df.Filter(f"detector == {ch}") for ch in range(self.config.numch)]
         hist_dict = {}
 
-        for key, hist_def in self.hist_definitions.items():
+        for key, hist_def in self.hist_def.items():
             name = hist_def.name
             xaxis = hist_def.xaxis
             yaxis = hist_def.yaxis
