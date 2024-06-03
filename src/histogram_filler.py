@@ -1,7 +1,9 @@
-import ROOT
+"""Module to handle the loading of histogram data from ROOT TTrees."""
+
 import csv
-import numpy as np
 from dataclasses import dataclass, field
+import numpy as np
+import ROOT
 import utils
 import histogram_manager as hm
 
@@ -41,7 +43,7 @@ class HistogramFiller:
     hist_def: dict = field(init=False)
     calib_slope: np.ndarray = field(init=False)
     calib_offset: np.ndarray = field(init=False)
-    ACTIVE_CH_LIST: list = field(init=False)
+    active_ch_list: list = field(init=False)
 
     instance_num = 0
 
@@ -50,12 +52,12 @@ class HistogramFiller:
         self.instance_id = __class__.instance_num
         __class__.instance_num += 1
 
-        self.config = self.load_config(self.config_path)
-        self.hist_def = self.load_histogram_definitions(self.hist_def_path)
+        self.config = self._load_config(self.config_path)
+        self.hist_def = self._load_histogram_definitions(self.hist_def_path)
         self.det_map = utils.load_det_map(self.config.paths["run_info"])
-        self.ACTIVE_CH_LIST = self.det_map["active"]
+        self.active_ch_list = self.det_map["active"]
 
-        self.calib_slope, self.calib_offset = self.extract_calib_from_csv(
+        self.calib_slope, self.calib_offset = self._extract_calib_from_csv(
             self.config.paths["calib"], self.config.numch
         )
 
@@ -69,7 +71,7 @@ class HistogramFiller:
         """
         )
 
-    def load_config(self, config_path):
+    def _load_config(self, config_path):
         """Loads configuration from a TOML file."""
         config_dict = utils.load_toml_to_dict(config_path)
         return Config(
@@ -79,7 +81,7 @@ class HistogramFiller:
             paths=config_dict["paths"],
         )
 
-    def load_histogram_definitions(self, hist_def_path):
+    def _load_histogram_definitions(self, hist_def_path):
         """Loads histogram definitions from a TOML file."""
         hist_def_dict = utils.load_toml_to_dict(hist_def_path)
         return {
@@ -95,12 +97,12 @@ class HistogramFiller:
             for key, val in hist_def_dict["histograms"].items()
         }
 
-    def extract_calib_from_csv(self, filename, numch):
+    def _extract_calib_from_csv(self, filename, numch):
         """Extracts calibration data from a CSV file."""
         calib_slope = np.ones(numch)
         calib_offset = np.zeros(numch)
 
-        with open(filename, "r") as file:
+        with open(filename, "r", encoding="utf-8") as file:
             reader = csv.reader(file)
             next(reader)
             for row in reader:
@@ -126,11 +128,11 @@ class HistogramFiller:
 
     def filter_active_channels(self):
         """Filters out inactive channels from the DataFrame."""
-        for ch, active in enumerate(self.ACTIVE_CH_LIST):
+        for ch, active in enumerate(self.active_ch_list):
             if not active:
                 self.df = self.df.Filter(f"detector != {ch}")
 
-    def create_df_dict(self):
+    def _create_df_dict(self):
         """Creates a dictionary of DataFrames filtered by histogram definitions."""
         df_dict = {}
         for key, hist_def in self.hist_def.items():
@@ -147,7 +149,7 @@ class HistogramFiller:
 
         return df_dict
 
-    def create_hist_dict(self, df_dict, hist_model_dict):
+    def _create_hist_dict(self, df_dict, hist_model_dict):
         """Creates a dictionary of histograms from the DataFrame dictionary."""
         hist_dict = {}
         for key, hist_model in hist_model_dict.items():
@@ -164,7 +166,7 @@ class HistogramFiller:
 
         return hist_dict
 
-    def create_hist_dict_from_df(self):
+    def _create_hist_dict_from_df(self):
         """Creates a dictionary of histograms directly from the DataFrame."""
         df_ch = [self.df.Filter(f"detector == {ch}") for ch in range(self.config.numch)]
         hist_dict = {}
@@ -212,4 +214,4 @@ class HistogramFiller:
 
     def create_hm_from_df(self):
         """Creates a HistogramManager instance from the DataFrame."""
-        return hm.HistogramManager(self.create_hist_dict_from_df())
+        return hm.HistogramManager(self._create_hist_dict_from_df())
