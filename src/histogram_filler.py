@@ -130,51 +130,6 @@ class HistogramFiller:
             if not active:
                 self.df = self.df.Filter(f"detector != {ch}")
 
-    def create_hist_model_dict(self):
-        """*DEPRECATED* Creates a dictionary of histogram models."""
-        hist_model_dict = {}
-
-        function_map = {
-            "En": utils.get_xbins_En,
-            "Egam": utils.get_xbins_Egam,
-            "tof_mus": utils.get_xbins_tof_mus,
-            "tof_ns": utils.get_xbins_tof_ns,
-            "tof_10ns": utils.get_xbins_tof_10ns,
-        }
-
-        for key, hist_def in self.hist_def.items():
-            xaxis = hist_def.xaxis
-            yaxis = hist_def.yaxis
-            bins = hist_def.bins
-            down, up, rebin = bins["down"], bins["up"], bins["rebin"]
-
-            func = function_map.get(hist_def.col)
-            if func:
-                if hist_def.col == "En":
-                    xbins = func(down, up, self.config.fp_length, rebin)
-                else:
-                    xbins = func(down, up, rebin)
-            else:
-                raise ValueError(f"Unknown column: {hist_def.col}")
-
-            if hist_def.all:
-                name = hist_def.name
-                title = f"{name};{xaxis};{yaxis}"
-                hist_model_dict[key] = ROOT.RDF.TH1DModel(
-                    name, title, xbins.len(), xbins
-                )
-            else:
-                hist_model_dict[key] = {}
-                for ch in range(self.config.numch):
-                    name = f"{hist_def.name}_d{ch}"
-                    title = f"{name};{xaxis};{yaxis}"
-                    scale = self.calib_slope[ch] if "hEgam" in name else 1
-                    hist_model_dict[key][name] = ROOT.RDF.TH1DModel(
-                        name, title, xbins.len(), xbins * scale
-                    )
-
-        return hist_model_dict
-
     def create_df_dict(self):
         """Creates a dictionary of DataFrames filtered by histogram definitions."""
         df_dict = {}
@@ -258,57 +213,3 @@ class HistogramFiller:
     def create_hm_from_df(self):
         """Creates a HistogramManager instance from the DataFrame."""
         return hm.HistogramManager(self.create_hist_dict_from_df())
-
-    def read_rawroot_to_dict(self, file_name, filter_active=False):
-        """*DEPRECATED* Reads a raw ROOT file and converts it to a dictionary of histograms."""
-        ROOT.EnableImplicitMT()
-        df = ROOT.RDataFrame(file_name)
-
-        if filter_active:
-            self.filter_active_channels()
-
-        self.define_columns()
-        df_ch = [self.df.Filter(f"detector == {ch}") for ch in range(self.config.numch)]
-        hist_dict = {}
-
-        for key, hist_def in self.hist_def.items():
-            name = hist_def.name
-            xaxis = hist_def.xaxis
-            yaxis = hist_def.yaxis
-            col = hist_def.col
-            gate = hist_def.gate
-            bins = hist_def.bins
-            down, up, N, var = bins["down"], bins["up"], bins["N"], bins["var"]
-
-            df_gate_ch = (
-                [
-                    self.df.Filter(gate).Filter(f"detector == {ch}")
-                    for ch in range(self.config.numch)
-                ]
-                if gate
-                else df_ch
-            )
-
-            if hist_def.all:
-                title = f"{name};{xaxis};{yaxis}"
-                xbins = utils.get_xbins(N, down, up, var, self.config.fp_length)
-                hist_model_all = ROOT.RDF.TH1DModel(name, title, N, xbins)
-                hist_all = (
-                    self.df.Filter(gate).Histo1D(hist_model_all, col)
-                    if gate
-                    else self.df.Histo1D(hist_model_all, col)
-                )
-                hist_dict[key] = hist_all
-            else:
-                hist_dict[key] = {}
-                for ch in range(self.config.numch):
-                    title = f"{name}_d{ch};{xaxis};{yaxis}"
-                    xbins = utils.get_xbins(N, down, up, var, self.config.fp_length)
-                    scale = self.calib_slope[ch] if "hEgam" in name else 1
-                    hist_model_ch = ROOT.RDF.TH1DModel(
-                        f"{name}_d{ch}", title, N, xbins * scale
-                    )
-                    hist_ch = df_gate_ch[ch].Histo1D(hist_model_ch, col)
-                    hist_dict[key][f"{name}_d{ch}"] = hist_ch
-
-        return hist_dict
