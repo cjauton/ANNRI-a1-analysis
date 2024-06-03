@@ -23,10 +23,10 @@ class HistogramDefinition:
     xaxis: str
     yaxis: str
     bins: dict
-    all: bool
+    sum_det: bool
     name: str
     gate: str
-    col: str
+    column: str
 
 
 @dataclass
@@ -84,13 +84,13 @@ class HistogramFiller:
         hist_def_dict = utils.load_toml_to_dict(hist_def_path)
         return {
             key: HistogramDefinition(
-                xaxis=hist_def_dict["column"][val["col"]]["xaxis"],
-                yaxis=hist_def_dict["column"][val["col"]]["yaxis"],
-                bins=hist_def_dict["column"][val["col"]]["bins"],
-                all=val["all"],
+                xaxis=hist_def_dict["columns"][val["column"]]["xaxis"],
+                yaxis=hist_def_dict["columns"][val["column"]]["yaxis"],
+                bins=hist_def_dict["columns"][val["column"]]["bins"],
+                sum_det=val["sum_det"],
                 name=key,
                 gate=val["gate"],
-                col=val["col"],
+                column=val["column"],
             )
             for key, val in hist_def_dict["histograms"].items()
         }
@@ -138,7 +138,7 @@ class HistogramFiller:
             name = hist_def.name
             df_gate = self.df if gate == "" else self.df.Filter(gate)
 
-            if hist_def.all:
+            if hist_def.sum_det:
                 df_dict[key] = df_gate
             else:
                 df_dict[key] = {}
@@ -151,16 +151,16 @@ class HistogramFiller:
         """Creates a dictionary of histograms from the DataFrame dictionary."""
         hist_dict = {}
         for key, hist_model in hist_model_dict.items():
-            col = self.hist_def[key].col
+            column = self.hist_def[key].column
 
-            if self.hist_def[key].all:
-                hist_dict[key] = df_dict[key].Histo1D(hist_model, col)
+            if self.hist_def[key].sum_det:
+                hist_dict[key] = df_dict[key].Histo1D(hist_model, column)
             else:
                 hist_dict[key] = {}
                 for ch in range(self.config.numch):
                     hist_dict[key][f"{key}_d{ch}"] = df_dict[key][
                         f"{key}_d{ch}"
-                    ].Histo1D(hist_model[f"{key}_d{ch}"], col)
+                    ].Histo1D(hist_model[f"{key}_d{ch}"], column)
 
         return hist_dict
 
@@ -173,16 +173,16 @@ class HistogramFiller:
             name = hist_def.name
             xaxis = hist_def.xaxis
             yaxis = hist_def.yaxis
-            col = hist_def.col
+            column = hist_def.column
             gate = hist_def.gate
             bins = hist_def.bins
             down, up, rebin = bins["down"], bins["up"], bins["rebin"]
 
-            if hist_def.col == "En":
+            if hist_def.column == "En":
                 xbins = utils.get_xbins_En(down, up, self.config.fp_length, rebin)
-            elif hist_def.col == "Egam":
+            elif hist_def.column == "Egam":
                 xbins = utils.get_xbins_Egam(down, up, rebin)
-            elif hist_def.col == "tof_mus":
+            elif hist_def.column == "tof_mus":
                 xbins = utils.get_xbins_tof_mus(down, up, rebin)
 
             if gate != "":
@@ -192,10 +192,10 @@ class HistogramFiller:
                 df_gate_all = self.df
                 df_gate_ch = df_ch
 
-            if hist_def.all:
+            if hist_def.sum_det:
                 title = f"{name};{xaxis};{yaxis}"
                 hist_model_all = ROOT.RDF.TH1DModel(name, title, len(xbins) - 1, xbins)
-                hist_all = df_gate_all.Histo1D(hist_model_all, col)
+                hist_all = df_gate_all.Histo1D(hist_model_all, column)
                 hist_dict[key] = hist_all
             else:
                 hist_dict[key] = {}
@@ -205,7 +205,7 @@ class HistogramFiller:
                     hist_model_ch = ROOT.RDF.TH1DModel(
                         f"{name}_d{ch}", title, len(xbins) - 1, xbins * scale
                     )
-                    hist_ch = df_gate_ch[ch].Histo1D(hist_model_ch, col)
+                    hist_ch = df_gate_ch[ch].Histo1D(hist_model_ch, column)
                     hist_dict[key][f"{name}_d{ch}"] = hist_ch
 
         return hist_dict
