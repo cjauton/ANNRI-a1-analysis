@@ -6,7 +6,7 @@ This Python project aims to perform aid in physics analysis of data from the ANN
 
 - Python 3.x
 - ROOT (CERN) library (for handling TTRee and histograms)
-- PyROOT (CERN) library (for bindings between Python and C++) 
+- PyROOT (CERN) library (for bindings between Python and C++)
 
 ## Installation
 
@@ -22,6 +22,7 @@ Then navigate to the directory and install locally using the included `setup.py`
 cd annri-analysis-framework
 pip install -e .
 ```
+
 You should now be able to create a new directory anywhere and import the framework.
 To uninstall you can in the same directory run:
 
@@ -71,7 +72,6 @@ To use the HistogramFiller class create a python script or an IPython Notebook a
 4. Define the new columns using `my_hf.define_columns()`
 5. Create a HistogramManager object using `my_hm = my_hf.create_hm_from_df()`
 6. Write the newly created HistogramManager object to a root file using `my_hm.write("path/to/root/file.root")`
-
 
 The writing and loading of root files is handled by the HistogramManager module and is done using python dicts. The entirety of the analysis uses dicts as containers to model the layout of the root file directory structure. For example:
 
