@@ -1,6 +1,6 @@
 # ANNRI Analysis Framework
 
-This Python project aims to perform aid in physics analysis of data from the ANNRI gamma ray detector. The analysis API is divided into two parts: `HistogramFiller` and `HistogramManager`. Each part has a specific purpose and contributes to the final result. There is also a common `utils.py` that holds functions common to both parts.
+This Python project aims to perform and aid in physics analysis of data from the ANNRI High Purity Germanium detector array. The analysis API is divided into two parts: `HistogramFiller` and `HistogramManager`. Each part has a specific purpose and contributes to the final result. There is also a common `utils.py` that holds functions common to both parts.
 
 ## Requirements
 
