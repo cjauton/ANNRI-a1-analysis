@@ -15,7 +15,6 @@ class Config:
     numch: int
     fp_length: float
     data_format: str
-    paths: dict
 
 
 @dataclass
@@ -38,6 +37,7 @@ class HistogramFiller:
     config_path: str
     hist_def_path: str
     calib_path: str
+    det_info_path: str
     instance_id: int = field(init=False)
     config: Config = field(init=False)
     hist_def: dict = field(init=False)
@@ -54,7 +54,7 @@ class HistogramFiller:
 
         self.config = self._load_config(self.config_path)
         self.hist_def = self._load_histogram_definitions(self.hist_def_path)
-        self.det_map = utils.load_det_map(self.config.paths["run_info"])
+        self.det_map = utils.load_det_map(self.det_info_path)
         self.active_ch_list = self.det_map["active"]
 
         self.calib_slope, self.calib_offset = self._extract_calib_from_csv(
@@ -78,7 +78,6 @@ class HistogramFiller:
             numch=config_dict["general"]["numch"],
             fp_length=config_dict["general"]["fp_length"],
             data_format=config_dict["general"]["data_format"],
-            paths=config_dict["paths"],
         )
 
     def _load_histogram_definitions(self, hist_def_path):
