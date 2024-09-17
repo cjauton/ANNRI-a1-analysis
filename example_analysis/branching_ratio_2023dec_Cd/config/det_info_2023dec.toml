@@ -1,0 +1,224 @@
+[det.ch0]
+channel = 0
+position = nan
+angle = nan
+active = false
+type = "shot"
+
+[det.ch1]
+channel = 1
+position = 1
+angle = 71
+active = true # bad calib
+type = "up"
+
+[det.ch2]
+channel = 2
+position = 7
+angle = 90
+active = true
+type = "up"
+
+[det.ch3]
+channel = 3
+position = 3
+angle = 109
+active = true
+type = "up"
+
+[det.ch4]
+channel = 4
+position = nan
+angle = nan
+active = false
+type = "empty"
+
+[det.ch5]
+channel = 5
+position = nan
+angle = nan
+active = false
+type = "empty"
+
+[det.ch6]
+channel = 6
+position = 6
+angle = 71
+active = true
+type = "up"
+
+[det.ch7]
+channel = 7
+position = 5
+angle = 90
+active = true
+type = "up"
+
+[det.ch8]
+channel = 8
+position = nan
+angle = nan
+active = false
+type = "shot"
+
+[det.ch9]
+channel = 9
+position = 13
+angle = 90
+active = true
+type = "down"
+
+[det.ch10]
+channel = 10
+position = 10
+angle = 90
+active = true
+type = "down"
+
+[det.ch11]
+channel = 11
+position = 11
+angle = 109
+active = true
+type = "down"
+
+[det.ch12]
+channel = 12
+position = nan
+angle = nan
+active = false
+type = "empty"
+
+[det.ch13]
+channel = 13
+position = 9
+angle = 71
+active = true
+type = "down"
+
+[det.ch14]
+channel = 14
+position = nan
+angle = nan
+active = false
+type = "empty"
+
+[det.ch15]
+channel = 15
+position = 15
+angle = 71
+active = true
+type = "down"
+
+[det.ch16]
+channel = 16
+position = nan
+angle = nan
+active = false
+type = "shot"
+
+[det.ch17]
+channel = 17
+position = 18
+angle = 108
+active = true
+type = "coaxial"
+
+[det.ch18]
+channel = 18
+position = 17
+angle = 144
+active = true
+type = "coaxial"
+
+[det.ch19]
+channel = 19
+position = 19
+angle = 72
+active = true
+type = "coaxial"
+
+[det.ch20]
+channel = 20
+position = 20
+angle = 36
+active = true
+type = "coaxial"
+
+[det.ch21]
+channel = 21
+position = nan
+angle = nan
+active = false
+type = "empty"
+
+[det.ch22]
+channel = 22
+position = 2
+angle = 90
+active = true  # bad calib
+type = "empty"
+
+[det.ch23]
+channel = 23
+position = nan
+angle = nan
+active = false
+type = "empty"
+
+[det.ch24]
+channel = 24
+position = nan
+angle = nan
+active = false
+type = "shot"
+
+[det.ch25]
+channel = 25
+position = 26
+angle = 108
+# angle = 72
+active = true
+type = "coaxial"
+
+[det.ch26]
+channel = 26
+position = 25
+angle = 144
+active = true
+type = "coaxial"
+
+[det.ch27]
+channel = 27
+position = 27
+angle = 72
+active = true  # bad calib
+type = "empty"
+
+[det.ch28]
+channel = 28
+position = 28
+angle = 36
+active = true
+type = "up"
+
+[det.ch29]
+channel = 29
+position = nan
+angle = nan
+active = false
+type = "empty"
+
+[det.ch30]
+channel = 30
+position = nan
+angle = nan
+active = false
+type = "empty"
+
+[det.ch31]
+channel = 31
+position = nan
+angle = nan
+active = false
+type = "empty"

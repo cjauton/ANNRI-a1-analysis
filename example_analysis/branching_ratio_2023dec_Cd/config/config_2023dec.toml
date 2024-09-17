@@ -1,0 +1,10 @@
+# Congfig for the stage 0 module. This config is loaded on module import.
+
+[general]
+data_format = "2023"
+tree_name = "rawTree"
+nuclei = "Cd"
+numch = 32
+fp_length = 21.5
+pu_flag = 32768
+fo_flag = 65536

@@ -1,0 +1,168 @@
+# Histograms
+# Add new table to add more histograms 
+
+###############################################################################
+### Columns
+###############################################################################
+
+[columns.tof_mus]
+bins.down = 0
+bins.up = 2000
+bins.width = 0.01
+bins.rebin = 1
+bins.var = false
+axis_label = "TOF (#mus)"
+
+[columns.tof_ns]
+bins.down = 0
+bins.up = 2000000
+bins.width = 10
+bins.rebin = 1
+bins.var = false
+axis_label = "TOF (ns)"
+
+[columns.tof_10ns]
+bins.down = 0
+bins.up = 200000
+bins.width = 1
+bins.rebin = 1
+bins.var = false
+axis_label = "TOF (10ns)"
+
+[columns.En]
+bins.down = 0
+bins.up = 120
+bins.width = 0.03
+bins.rebin = 1
+bins.var = false
+axis_label = "En (eV)"
+
+[columns.Egam]
+bins.down = 0
+bins.up = 12000
+bins.width = 1
+bins.rebin = 1
+bins.var = false
+axis_label = "Egam (keV)"
+
+[columns.PulseHeight]
+bins.down = 0
+bins.up = 12000
+bins.width = 1
+bins.rebin = 1
+bins.var = false
+axis_label = "pulse height"
+
+###############################################################################
+### Histograms
+###############################################################################
+
+[histograms.hTOF_mus]
+columns = ["tof_mus"]
+gate = ""
+sum_det = true
+
+# [histograms.hTOF_ns]
+# columns = "tof_ns"
+# gate = ""
+# sum_det = true
+
+# [histograms.hTOF_10ns]
+# columns = "tof_10ns"
+# gate = ""
+# sum_det = true
+
+###############################################################################
+
+[histograms.hPulseHeight]
+columns = ["PulseHeight"]
+gate = "PulseHeight > 0"
+sum_det = true
+
+###############################################################################
+
+[histograms.hEgam]
+columns = ["Egam"]
+gate = ""
+sum_det = true
+
+# [histograms.hEgam_det]
+# columns = "Egam"
+# gate = ""
+# sum_det = false
+
+###############################################################################
+
+[histograms.hEn]
+columns = ["En"]
+gate = ""
+sum_det = false
+
+[histograms.hEn_ge2MeV]
+columns = ["En"]
+gate = "Egam > 2000"
+sum_det = true
+
+[histograms.hEn_gate477]
+columns = ["En"]
+gate = "Egam >= 470 && Egam <= 480"
+sum_det = true
+
+
+# [histograms.hEn_zero]
+# columns = "En"
+# gate = "PulseHeight == 0"
+# sum_det = true
+
+
+# [histograms.hEn_gtzero]
+# columns = "En"
+# gate = "PulseHeight > 0"
+# sum_det = true
+
+
+# [histograms.hEn_pu]
+# columns = "En"
+# gate = "Flags == 32768"
+# sum_det = false
+
+
+# [histograms.hEn_npu]
+# columns = "En"
+# gate = "Flags != 32768"
+# sum_det = false
+
+# [histograms.hEgam_gate7]
+# columns = ["Egam"]
+# gate = "En >= 6 && En <= 8"
+# sum_det = false
+
+[histograms.hEn_gate9394]
+columns = ["En"]
+gate = "Egam >= 9316 && Egam <= 9408"
+sum_det = true
+
+[histograms.hEn_gate9394bkg]
+columns = ["En"]
+gate = "Egam >= 9474 && Egam <= 9694"
+sum_det = true
+
+[histograms.hEn_gate9394_SE]
+columns = ["En"]
+gate = "Egam >= 8805 && Egam <= 8897"
+sum_det = true
+
+[histograms.hEn_gate9394_SEbkg]
+columns = ["En"]
+gate = "Egam >= 8900 && Egam <= 8950"
+sum_det = true
+
+# [histograms.hEn_hEgam]
+# columns = ["En"]
+# gate = ""
+# sum_det = false
+
+# [histograms.hEn_gate9043]
+# columns = "En"
+# gate = "Egam >= 8905 && Egam <= 9070"
+# sum_det = true
