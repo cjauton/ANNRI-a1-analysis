@@ -37,6 +37,7 @@ class HistogramFiller:
     df: ROOT.RDataFrame
     config_path: str
     hist_def_path: str
+    calib_path: str
     instance_id: int = field(init=False)
     config: Config = field(init=False)
     hist_def: dict = field(init=False)
@@ -57,7 +58,7 @@ class HistogramFiller:
         self.active_ch_list = self.det_map["active"]
 
         self.calib_slope, self.calib_offset = self._extract_calib_from_csv(
-            self.config.paths["calib"], self.config.numch
+            self.calib_path, self.config.numch
         )
 
         calib_slope_str = "{" + ",".join(map(str, self.calib_slope.tolist())) + "}"
