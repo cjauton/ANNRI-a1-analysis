@@ -6,6 +6,9 @@ __pycache__/
 
 /data
 /output
+/calib
+/config
 .DS_Store
 *.root
 *.egg-info
+src/*.ipynb
