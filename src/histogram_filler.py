@@ -22,13 +22,12 @@ class Config:
 class HistogramDefinition:
     """Definition of the histograms to be created."""
 
-    xaxis: str
-    yaxis: str
-    bins: dict
-    sum_det: bool
-    name: str
+    axis_labels: list[str]
+    bins: list[dict]
+    columns: list[str]
     gate: str
-    column: str
+    name: str
+    sum_det: bool
 
 
 @dataclass
@@ -82,17 +81,19 @@ class HistogramFiller:
         )
 
     def _load_histogram_definitions(self, hist_def_path):
-        """Loads histogram definitions from a TOML file."""
+        """Loads histogram definitions from a TOML file, supporting multi-dimensional histograms."""
         hist_def_dict = utils.load_toml_to_dict(hist_def_path)
         return {
             key: HistogramDefinition(
-                xaxis=hist_def_dict["columns"][val["column"]]["xaxis"],
-                yaxis=hist_def_dict["columns"][val["column"]]["yaxis"],
-                bins=hist_def_dict["columns"][val["column"]]["bins"],
+                axis_labels=[
+                    hist_def_dict["columns"][col]["axis_label"]
+                    for col in val["columns"]
+                ],
+                bins=[hist_def_dict["columns"][col]["bins"] for col in val["columns"]],
+                columns=val["columns"],
                 sum_det=val["sum_det"],
                 name=key,
                 gate=val["gate"],
-                column=val["column"],
             )
             for key, val in hist_def_dict["histograms"].items()
         }
@@ -166,6 +167,55 @@ class HistogramFiller:
 
         return hist_dict
 
+    # def _create_hist_dict_from_df(self):
+    #     """Creates a dictionary of histograms directly from the DataFrame."""
+    #     df_ch = [self.df.Filter(f"detector == {ch}") for ch in range(self.config.numch)]
+    #     hist_dict = {}
+
+    #     for key, hist_def in self.hist_def.items():
+    #         name = hist_def.name
+    #         axis_labels = hist_def.xaxis
+    #         columns = hist_def.column
+    #         gate = hist_def.gate
+    #         bins = hist_def.bins
+    #         down, up, width, rebin, var = (
+    #             bins["down"],
+    #             bins["up"],
+    #             bins["width"],
+    #             bins["rebin"],
+    #             bins["var"],
+    #         )
+
+    #         if hist_def.column == "En" and var:
+    #             xbins = utils.get_xbins_En(down, up, self.config.fp_length, rebin)
+    #         else:
+    #             xbins = utils.get_xbins_constant(down, up, width, rebin)
+
+    #         if gate != "":
+    #             df_gate_all = self.df.Filter(gate)
+    #             df_gate_ch = [df_ch[ch].Filter(gate) for ch in range(self.config.numch)]
+    #         else:
+    #             df_gate_all = self.df
+    #             df_gate_ch = df_ch
+
+    #         if hist_def.sum_det:
+    #             title = f"{name};{xaxis};{yaxis}"
+    #             hist_model_all = ROOT.RDF.TH1DModel(name, title, len(xbins) - 1, xbins)
+    #             hist_all = df_gate_all.Histo1D(hist_model_all, column)
+    #             hist_dict[key] = hist_all
+    #         else:
+    #             hist_dict[key] = {}
+    #             for ch in range(self.config.numch):
+    #                 title = f"{name}_d{ch};{xaxis};{yaxis}"
+    #                 scale = self.calib_slope[ch] if "hEgam" in name else 1
+    #                 hist_model_ch = ROOT.RDF.TH1DModel(
+    #                     f"{name}_d{ch}", title, len(xbins) - 1, xbins * scale
+    #                 )
+    #                 hist_ch = df_gate_ch[ch].Histo1D(hist_model_ch, column)
+    #                 hist_dict[key][f"{name}_d{ch}"] = hist_ch
+
+    #     return hist_dict
+
     def _create_hist_dict_from_df(self):
         """Creates a dictionary of histograms directly from the DataFrame."""
         df_ch = [self.df.Filter(f"detector == {ch}") for ch in range(self.config.numch)]
@@ -173,20 +223,17 @@ class HistogramFiller:
 
         for key, hist_def in self.hist_def.items():
             name = hist_def.name
-            xaxis = hist_def.xaxis
-            yaxis = hist_def.yaxis
-            column = hist_def.column
+            columns = hist_def.columns  # List of columns
             gate = hist_def.gate
             bins = hist_def.bins
-            down, up, rebin = bins["down"], bins["up"], bins["rebin"]
 
-            if hist_def.column == "En":
-                xbins = utils.get_xbins_En(down, up, self.config.fp_length, rebin)
-            elif hist_def.column == "Egam":
-                xbins = utils.get_xbins_Egam(down, up, rebin)
-            elif hist_def.column == "tof_mus":
-                xbins = utils.get_xbins_tof_mus(down, up, rebin)
+            # Handling multi-dimensional histograms
+            xbins_list = [
+                utils.get_xbins_constant(b["down"], b["up"], b["width"], b["rebin"])
+                for b in bins
+            ]
 
+            # Apply gate if it exists
             if gate != "":
                 df_gate_all = self.df.Filter(gate)
                 df_gate_ch = [df_ch[ch].Filter(gate) for ch in range(self.config.numch)]
@@ -194,21 +241,66 @@ class HistogramFiller:
                 df_gate_all = self.df
                 df_gate_ch = df_ch
 
+            # Check if we are summing over detectors
             if hist_def.sum_det:
-                title = f"{name};{xaxis};{yaxis}"
-                hist_model_all = ROOT.RDF.TH1DModel(name, title, len(xbins) - 1, xbins)
-                hist_all = df_gate_all.Histo1D(hist_model_all, column)
-                hist_dict[key] = hist_all
-            else:
+                if len(columns) == 1:  # 1D histogram
+                    title = f"{name};{hist_def.axis_labels[0]};Counts"
+                    hist_model_all = ROOT.RDF.TH1DModel(
+                        name, title, len(xbins_list[0]) - 1, xbins_list[0]
+                    )
+                    hist_all = df_gate_all.Histo1D(hist_model_all, columns[0])
+                    hist_dict[key] = hist_all
+
+                elif len(columns) == 2:  # 2D histogram
+                    title = (
+                        f"{name};{hist_def.axis_labels[0]};{hist_def.axis_labels[1]}"
+                    )
+                    hist_model_all = ROOT.RDF.TH2DModel(
+                        name,
+                        title,
+                        len(xbins_list[0]) - 1,
+                        xbins_list[0],
+                        len(xbins_list[1]) - 1,
+                        xbins_list[1],
+                    )
+                    hist_all = df_gate_all.Histo2D(
+                        hist_model_all, columns[0], columns[1]
+                    )
+                    hist_dict[key] = hist_all
+
+                # Additional handling for more dimensions can be added here
+
+            else:  # If not summing detectors, create histograms for each detector
                 hist_dict[key] = {}
                 for ch in range(self.config.numch):
-                    title = f"{name}_d{ch};{xaxis};{yaxis}"
-                    scale = self.calib_slope[ch] if "hEgam" in name else 1
-                    hist_model_ch = ROOT.RDF.TH1DModel(
-                        f"{name}_d{ch}", title, len(xbins) - 1, xbins * scale
-                    )
-                    hist_ch = df_gate_ch[ch].Histo1D(hist_model_ch, column)
-                    hist_dict[key][f"{name}_d{ch}"] = hist_ch
+                    if len(columns) == 1:  # 1D histogram
+                        title = f"{name}_d{ch};{hist_def.axis_labels[0]};Counts"
+                        scale = self.calib_slope[ch] if "hEgam" in name else 1
+                        hist_model_ch = ROOT.RDF.TH1DModel(
+                            f"{name}_d{ch}",
+                            title,
+                            len(xbins_list[0]) - 1,
+                            xbins_list[0] * scale,
+                        )
+                        hist_ch = df_gate_ch[ch].Histo1D(hist_model_ch, columns[0])
+                        hist_dict[key][f"{name}_d{ch}"] = hist_ch
+
+                    elif len(columns) == 2:  # 2D histogram
+                        title = f"{name}_d{ch};{hist_def.axis_labels[0]};{hist_def.axis_labels[1]}"
+                        hist_model_ch = ROOT.RDF.TH2DModel(
+                            f"{name}_d{ch}",
+                            title,
+                            len(xbins_list[0]) - 1,
+                            xbins_list[0],
+                            len(xbins_list[1]) - 1,
+                            xbins_list[1],
+                        )
+                        hist_ch = df_gate_ch[ch].Histo2D(
+                            hist_model_ch, columns[0], columns[1]
+                        )
+                        hist_dict[key][f"{name}_d{ch}"] = hist_ch
+
+                    # Additional handling for more dimensions can be added here
 
         return hist_dict
 

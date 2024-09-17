@@ -74,6 +74,12 @@ def get_xbins(Nbins: int, down: int, up: int, varbins: bool, fp_length: float) -
         xbins_tof = np.linspace(down, up, Nbins+1)
         return xbins_tof
     
+def get_xbins_constant(down: int, up: int, width: float, rebin: int = 1 )-> list[float]:
+    """Generates constant width bins give the up, down, width, and an optional rebin factor."""
+    Nbins = int((up - down) / width / rebin)
+    xbins = np.linspace(down, up, Nbins+1)
+    return xbins
+        
 def load_config(path):
     """**DEPRECATED** Loads configuration from a TOML file."""
     with open(path, "r") as f:
