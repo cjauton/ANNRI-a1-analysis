@@ -8,6 +8,7 @@ __pycache__/
 /output
 /calib
 /config
+/scripts
 .DS_Store
 *.root
 *.egg-info
