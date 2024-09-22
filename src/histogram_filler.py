@@ -52,14 +52,17 @@ class HistogramFiller:
         self.instance_id = __class__.instance_num
         __class__.instance_num += 1
 
-        self.config = self._load_config(self.config_path)
-        self.hist_def = self._load_histogram_definitions(self.hist_def_path)
-        self.det_map = utils.load_det_map(self.det_info_path)
-        self.active_ch_list = self.det_map["active"]
+        try:
+            self.config = self._load_config(self.config_path)
+            self.hist_def = self._load_histogram_definitions(self.hist_def_path)
+            self.det_map = utils.load_det_map(self.det_info_path)
+            self.active_ch_list = self.det_map["active"]
 
-        self.calib_slope, self.calib_offset = self._extract_calib_from_csv(
-            self.calib_path, self.config.numch
-        )
+            self.calib_slope, self.calib_offset = self._extract_calib_from_csv(
+                self.calib_path, self.config.numch
+            )
+        except Exception as e:
+            raise RuntimeError(f"Error initializing HistogramFiller: {e}")
 
         calib_slope_str = "{" + ",".join(map(str, self.calib_slope.tolist())) + "}"
         calib_offset_str = "{" + ",".join(map(str, self.calib_offset.tolist())) + "}"
@@ -82,21 +85,62 @@ class HistogramFiller:
 
     def _load_histogram_definitions(self, hist_def_path):
         """Loads histogram definitions from a TOML file, supporting multi-dimensional histograms."""
-        hist_def_dict = utils.load_toml_to_dict(hist_def_path)
-        return {
-            key: HistogramDefinition(
-                axis_labels=[
-                    hist_def_dict["columns"][col]["axis_label"]
-                    for col in val["columns"]
-                ],
-                bins=[hist_def_dict["columns"][col]["bins"] for col in val["columns"]],
-                columns=val["columns"],
-                sum_det=val["sum_det"],
-                name=key,
-                gate=val["gate"],
-            )
-            for key, val in hist_def_dict["histograms"].items()
-        }
+        try:
+            hist_def_dict = utils.load_toml_to_dict(hist_def_path)
+
+            if "histograms" not in hist_def_dict:
+                raise KeyError(f"Key 'histograms' is missing from {hist_def_path}")
+
+            histogram_definitions = {}
+
+            for key, val in hist_def_dict["histograms"].items():
+                required_keys = ["columns", "gate", "sum_det"]
+                for req_key in required_keys:
+                    if req_key not in val:
+                        raise KeyError(
+                            f"Key '{req_key}' is missing in histogram '{key}'"
+                        )
+
+                columns = val["columns"]
+                if not isinstance(columns, list):
+                    raise TypeError(
+                        f"Expected 'columns' to be a list in histogram '{key}'"
+                    )
+
+                axis_labels = []
+                bins = []
+                for col in columns:
+                    if col not in hist_def_dict["columns"]:
+                        raise KeyError(
+                            f"Column '{col}' not defined in 'columns' section."
+                        )
+
+                    col_data = hist_def_dict["columns"][col]
+                    if "axis_label" not in col_data or "bins" not in col_data:
+                        raise KeyError(
+                            f"Column '{col}' must define both 'axis_label' and 'bins'."
+                        )
+
+                    axis_labels.append(col_data["axis_label"])
+                    bins.append(col_data["bins"])
+
+                histogram_definitions[key] = HistogramDefinition(
+                    axis_labels=axis_labels,
+                    bins=bins,
+                    columns=columns,
+                    sum_det=val["sum_det"],
+                    name=key,
+                    gate=val["gate"],
+                )
+
+            return histogram_definitions
+
+        except KeyError as ke:
+            raise RuntimeError(f"Missing key in histogram definitions: {ke}")
+        except TypeError as te:
+            raise RuntimeError(f"Type error in histogram definitions: {te}")
+        except Exception as e:
+            raise RuntimeError(f"Error loading histogram definitions: {e}")
 
     def _extract_calib_from_csv(self, filename, numch):
         """Extracts calibration data from a CSV file."""
