@@ -1,6 +1,12 @@
 # ANNRI Analysis Framework
 
-This Python project aims to perform and aid in physics analysis of data from the ANNRI High Purity Germanium detector array. The analysis API is divided into two parts: `HistogramFiller` and `HistogramManager`. Each part has a specific purpose and contributes to the final result. There is also a common `utils.py` that holds functions common to both parts.
+This project provides a Python-based framework for creating and managing histograms from ROOT TTree data using Python, `ROOT.RDataFrame`, and customizable histogram definitions. The framework includes utilities for filling histograms, applying calibrations, managing detector channels, and more.
+
+## Structure
+
+- `histogram_filler.py`: Provides the HistogramMFiller class, which handles the main logic for filling histograms from a ROOT TTree using the provided configurations.
+- `histogram_manager.py`: Provides the HistogramManager class, which handles histograms, including reading/writing to ROOT files and plotting.
+- `utils.py`: Provides utility functions for TOF (Time-of-Flight) to energy conversion, bin generation, ROOT I/O, and detector map loading.
 
 ## Requirements
 
@@ -32,7 +38,7 @@ pip uninstall annri-analysis-framework
 
 ## HistogramFiller: Energy Calibration and Histogram Filling (`histogram_filler.py`)
 
-This class handles the conversion of the raw ANNRI data stored in a ROOT TTree/RNTuple into histograms that can be used for analysis. This stage focuses on calibration and data selection. It processes the ROOT TTRee/RNTuple data, applies calibrations, and performs necessary cuts using CERN ROOT's RNDataFrame library.  Histograms are defined in a toml file using the following format:
+This class handles the conversion of the raw ANNRI data stored in a ROOT TTree/RNTuple into histograms that can be used for analysis. This stage focuses on calibration and data selection. It processes the ROOT TTRee/RNTuple data, applies calibrations, and performs necessary cuts using CERN ROOT's RDataFrame library.  Histograms are defined in a toml file using the following format:
 
 ```toml
 ###############################################################################
