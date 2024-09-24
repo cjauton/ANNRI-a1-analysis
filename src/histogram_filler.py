@@ -61,6 +61,9 @@ class HistogramFiller:
             self.calib_slope, self.calib_offset = self._extract_calib_from_csv(
                 self.calib_path, self.config.numch
             )
+
+            self._validate_dataframe()
+
         except Exception as e:
             raise RuntimeError(f"Error initializing HistogramFiller: {e}")
 
@@ -73,6 +76,30 @@ class HistogramFiller:
         std::vector<double> calib_offset_{self.instance_id} = {calib_offset_str};
         """
         )
+
+    def _validate_dataframe(self):
+        """Validates that the DataFrame has the correct columns and types."""
+        expected_columns = {
+            "Coin": "UInt_t",
+            "Flags": "UInt_t",
+            "PulseHeight": "UShort_t",
+            "Timestamp": "ULong64_t",
+            "detector": "Int_t",
+            "nTrigger": "ULong64_t",
+            "tof": "ULong64_t",
+        }
+
+        df_columns = list(self.df.GetColumnNames())
+        missing_columns = set(expected_columns.keys()) - set(df_columns)
+        if missing_columns:
+            raise ValueError(f"Missing expected columns: {missing_columns}")
+
+        for col, expected_type in expected_columns.items():
+            actual_type = self.df.GetColumnType(col)
+            if actual_type != expected_type:
+                raise TypeError(
+                    f"Column '{col}' has type '{actual_type}', expected '{expected_type}'"
+                )
 
     def _load_config(self, config_path):
         """Loads configuration from a TOML file."""
